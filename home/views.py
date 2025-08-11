@@ -1,9 +1,15 @@
 from django.shortcuts import render
 
 # Create your views here.
-from django.conf import settings
+from .models import Restaurant
 
 def home_view(request):
-    return render(request, 'home.html', {
-        'restaurant_name': getattr(settings, 'RESTAURANT_NAME', 'Our Restaurant')
-    })
+    # Get or create the restaurant instance
+    restaurant, created = Restaurant.objects.get_or_create(
+        id=1,
+        defaults={
+            'name': 'Tasty Bites',
+            'description': 'Best food in town!'
+        }
+    )
+    return render(request, 'home.html', {'restaurant': restaurant})
