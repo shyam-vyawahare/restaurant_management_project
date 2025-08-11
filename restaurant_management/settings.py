@@ -129,4 +129,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Restaurant Name Here
-RESTAURANT_NAME = "Tasty Bites"  # Restaurant name here
+RESTAURANT_NAME = "Tasty Bites" 
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
