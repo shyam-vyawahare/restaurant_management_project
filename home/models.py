@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 # views.py
 from django.shortcuts import render
-from .models import Restaurant  # Assuming you have a Restaurant model
+from .models import Restaurant 
 
 def home_view(request):
     try:
