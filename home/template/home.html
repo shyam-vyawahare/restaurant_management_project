@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ restaurant.name }}</title>
+    </head>
+    <body>
+    <header>
+        <h1>Welcome to {{ restaurant.name }}</h1>
+        {% if restaurant.description %}
+            <p>{{ restaurant.description }}</p>
+        {% endif %}
+        {% if restaurant.logo %}
+            <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }} logo" width="200">
+        {% endif %}
+    </header>
+    </body>
+</html>
