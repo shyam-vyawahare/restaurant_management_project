@@ -2,8 +2,9 @@
 <html>
 <head>
     <title>{{ restaurant.name }}</title>
-    <!-- Internal CSS -->    
+        <!-- Internal CSS -->    
     <style>
+
         body {
             font-family: 'Arial', sans-serif;
             line-height: 1.6;
@@ -12,7 +13,7 @@
             background-color: #f8f9fa;
             color: #333;
         }
-        
+                                                                                                            
         header {
             background-color: #ffffff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -20,27 +21,27 @@
             text-align: center;
             margin-bottom: 2rem;
         }
-        
+                                                                                                                                                                                                
         h1 {
             color: #d32f2f;  /* Restaurant red theme */
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
         }
-        
+                                                                                                                                                                                                                                                            
         .restaurant-description {
             font-size: 1.1rem;
             color: #666;
             max-width: 800px;
             margin: 0 auto 1.5rem;
         }
-        
+                                                                                                                                                                                                                                                                                                                                    
         .restaurant-logo {
             border-radius: 50%;
             border: 3px solid #d32f2f;
             margin: 1rem 0;
             box-shadow: 0 3px 10px rgba(0,0,0,0.2);
         }
-        
+                                                                                                                                                                                                                                                                                                                                                                                                            
         .hours {
             background-color: #f1f1f1;
             padding: 1rem;
@@ -53,27 +54,27 @@
 <body>
     <header>
         {% if restaurant.logo %}
-            <img src="{{ restaurant.logo.url }}" 
-                 alt="{{ restaurant.name }} logo" 
-                 width="150" 
-                 class="restaurant-logo">
+        <img src="{{ restaurant.logo.url }}" 
+        alt="{{ restaurant.name }} logo" 
+        width="150" 
+        class="restaurant-logo">
         {% endif %}
-        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
         <h1>{{ restaurant.name }}</h1>
-        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
         {% if restaurant.description %}
-            <p class="restaurant-description">
-                {{ restaurant.description }}
-            </p>
+        <p class="restaurant-description">
+            {{ restaurant.description }}
+        </p>
         {% endif %}
-        
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
         {% if restaurant.opening_time and restaurant.closing_time %}
-            <div class="hours">
-                Open: {{ restaurant.opening_time|time:"g:i A" }} - 
-                {{ restaurant.clening_time|time:"g:i A" }}
-            </div>
+        <div class="hours">
+            Open: {{ restaurant.opening_time|time:"g:i A" }} - 
+            {{ restaurant.clening_time|time:"g:i A" }}
+        </div>
         {% endif %}
     </header>
 </body>
-    <!-- Add your menu/other sections here -->
+<!-- Add your menu/other sections here -->
 </html>
