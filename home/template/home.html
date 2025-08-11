@@ -2,8 +2,8 @@
 <html>
 <head>
     <title>{{ restaurant.name }}</title>
-    </head>
-    <body>
+</head>
+<body>
     <header>
         <h1>Welcome to {{ restaurant.name }}</h1>
         {% if restaurant.description %}
@@ -13,5 +13,5 @@
             <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }} logo" width="200">
         {% endif %}
     </header>
-    </body>
+</body>
 </html>
