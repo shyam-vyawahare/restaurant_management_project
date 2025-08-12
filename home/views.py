@@ -17,3 +17,6 @@ def home_view(request):
 def about_view(request):
     restaurant = Restaurant.objects.first()
     return render(request, 'about.html', {'restaurant': restaurant})
+
+def custom_404(request, exception):
+    return render(request, '404.html', status=404)
