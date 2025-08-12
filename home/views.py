@@ -13,3 +13,7 @@ def home_view(request):
         }
     )
     return render(request, 'home.html', {'restaurant': restaurant})
+
+def about_view(request):
+    restaurant = Restaurant.objects.first()
+    return render(request, 'about.html', {'restaurant': restaurant})
