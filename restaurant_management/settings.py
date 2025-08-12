@@ -134,3 +134,7 @@ RESTAURANT_NAME = "Tasty Bites"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# 404 page
+DEBUG = False  # Only set this in production
+ALLOWED_HOSTS = ['*']  # For testing, specify your domain in production
