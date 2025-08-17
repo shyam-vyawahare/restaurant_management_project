@@ -36,3 +36,30 @@ def home_view(request):
         'restaurant': restaurant,
         'default_phone': settings.RESTAURANT_PHONE
     })
+
+def menu_view(request):
+    # Hardcoded menu items (will be replaced with database query later)
+    menu_items = [
+        {
+            'id': 1,
+            'name': 'Margherita Pizza',
+            'description': 'Classic pizza with tomato sauce, mozzarella, and basil',
+            'price': 12.99,
+            'category': 'Main'
+        },
+        {
+            'id': 2,
+            'name': 'Caesar Salad',
+            'description': 'Romaine lettuce, croutons, parmesan, and Caesar dressing',
+            'price': 8.99,
+            'category': 'Starter'
+        },
+        {
+            'id': 3,
+            'name': 'Chocolate Lava Cake',
+            'description': 'Warm chocolate cake with a molten center, served with vanilla ice cream',
+            'price': 6.99,
+            'category': 'Dessert'
+        }
+    ]
+    return render(request, 'home/menu.html', {'menu_items': menu_items})
