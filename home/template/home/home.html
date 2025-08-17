@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ restaurant.name }}</title>
+			<div class="contact-info">
+    {% if restaurant.phone %}
+        <p class="phone">Call us: {{ restaurant.phone }}</p>
+    {% else %}
+        <p class="phone">Call us: {{ default_phone }}</p>
+    {% endif %}
+</div>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -29,6 +36,17 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        .contact-info {
+        margin-top: 1rem;
+    }
+    .phone {
+        font-size: 1.2rem;
+        margin: 0;
+        padding: 0.5rem;
+        background-color: rgba(255,255,255,0.2);
+        display: inline-block;
+        border-radius: 4px;
+    }
     </style>
 </head>
 <body>
