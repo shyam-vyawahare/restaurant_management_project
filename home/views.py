@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.conf import settings
+from .models import Restaurant
 
 # Create your views here.
 from .models import Restaurant
@@ -20,3 +22,17 @@ def about_view(request):
 
 def custom_404(request, exception):
     return render(request, '404.html', status=404)
+
+def home_view(request):
+    restaurant, created = Restaurant.objects.get_or_create(
+        id=1,
+        defaults={
+            'name': 'Tasty Bites',
+            'description': 'Welcome to our restaurant!',
+            'phone': settings.RESTAURANT_PHONE  # Use settings fallback
+        }
+    )
+    return render(request, 'home/home.html', {
+        'restaurant': restaurant,
+        'default_phone': settings.RESTAURANT_PHONE
+    })
