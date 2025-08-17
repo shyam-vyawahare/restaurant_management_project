@@ -6,6 +6,7 @@ from django.db import models
 class Restaurant(models.Model):
     name = models.CharField(max_length=100, default="Tasty Bites")
     description = models.TextField(default="Welcome to our restaurant!")
+	   phone = models.CharField(max_length=20, blank=True, null=True)  # Add this line
     logo = models.ImageField(upload_to='restaurant/', blank=True, null=True)
     opening_time = models.TimeField(blank=True, null=True)
     closing_time = models.TimeField(blank=True, null=True)
