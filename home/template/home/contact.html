@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contact Us - {{ restaurant.name }}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #d32f2f;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+        .contact-item {
+            margin-bottom: 1.5rem;
+        }
+        .contact-item h2 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .hours {
+            white-space: pre-line;
+        }
+    </style>
+</head>
+<body>
+    {% include 'home/navbar.html' %}
+    
+    <div class="container">
+        <h1>Contact Us</h1>
+        
+        <div class="contact-item">
+            <h2>Phone</h2>
+            <p>{{ contact.phone }}</p>
+        </div>
+        
+        <div class="contact-item">
+            <h2>Email</h2>
+            <p>{{ contact.email }}</p>
+        </div>
+        
+        <div class="contact-item">
+            <h2>Address</h2>
+            <p>{{ contact.address }}</p>
+        </div>
+        
+        <div class="contact-item">
+            <h2>Opening Hours</h2>
+            <p class="hours">{{ contact.hours }}</p>
+        </div>
+    </div>
+</body>
+</html>
