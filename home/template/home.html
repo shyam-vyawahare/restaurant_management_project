@@ -4,7 +4,7 @@
     <title>{{ restaurant.name }}</title>
     <!-- Internal CSS -->    
     <style>
-
+        /* The Basic Css used Internally */o
         body {
             font-family: 'Arial', sans-serif;
             line-height: 1.6;
@@ -53,13 +53,6 @@
     </style>
 </head>
 <body>
-
-		<nav style="background: #333; padding: 1rem;">
-    		<a href="/" style="color: white; text-decoration: none; margin-right: 1rem;">Home</a>
-    		<a href="/about" style="color: white; text-decoration: none;">About</a>
-		</nav>
-
-
     <header>
         {% if restaurant.logo %}
         <img src="{{ restaurant.logo.url }}" 
