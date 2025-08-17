@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Our Menu</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        h1 {
+            color: #d32f2f;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .menu-category {
+            margin-bottom: 3rem;
+        }
+        .menu-category h2 {
+            border-bottom: 2px solid #d32f2f;
+            padding-bottom: 0.5rem;
+            color: #333;
+        }
+        .menu-item {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .menu-item h3 {
+            margin-top: 0;
+            color: #d32f2f;
+        }
+        .price {
+            font-weight: bold;
+            color: #d32f2f;
+            font-size: 1.1rem;
+        }
+        nav {
+            background: #333;
+            padding: 1rem;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/menu">Menu</a>
+        <a href="/contact">Contact</a>
+    </nav>
+
+    <div class="container">
+        <h1>Our Menu</h1>
+        
+        <div class="menu-category">
+            <h2>Food</h2>
+            {% for item in menu_items %}
+            <div class="menu-item">
+                <h3>{{ item.name }}</h3>
+                <p>{{ item.description }}</p>
+                <p class="price">${{ item.price }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
