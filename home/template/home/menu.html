@@ -3,6 +3,17 @@
 <head>
     <title>Our Menu</title>
     <style>
+
+        {% extends 'home/base.html' %}
+
+{% block title %}Our Menu - {{ restaurant.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Our Menu</h1>
+    <!-- Menu content here -->
+</div>
+
         /* Basic CSS Intnernally used */
         body {
             font-family: 'Arial', sans-serif;

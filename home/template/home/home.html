@@ -1,9 +1,12 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Savory Bites | Fine Dining Experience</title>
+    <title>{{ restaurant.name }}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -58,6 +61,8 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            justify-content: center;
+            margin-bottom: 1rem;
         }
         
         .logo {
@@ -328,19 +333,27 @@
 
     <div class="header">
         <div class="logo-container">
-            <div class="logo-and-name">
-                <div class="logo">
-                    <i class="fas fa-utensils"></i>
+            {% if restaurant.logo %}
+                <img src="{{ restaurant.logo.url }}" 
+                     alt="{{ restaurant.name }} Logo" 
+                     class="restaurant-logo">
+            {% else %}
+                <div class="logo-and-name">
+                    <div class="logo">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="restaurant-name">{{ restaurant.name }}</div>
                 </div>
-                <div class="restaurant-name">Savory Bites</div>
+            {% endif %}
+        </div>
+        
+        <h1>{{ restaurant.name }}</h1>
+        
+        {% if restaurant.phone %}
+            <div class="contact-info">
+                <p class="phone">📞 Call us: {{ restaurant.phone }}</p>
             </div>
-        </div>
-        
-        <h1>Savory Bites</h1>
-        
-        <div class="contact-info">
-            <p class="phone">Call us: (555) 123-4567</p>
-        </div>
+        {% endif %}
     </div>
 
     <section class="hero">
@@ -355,8 +368,8 @@
 
     <div class="container">
         <div class="welcome-card">
-            <h2>Welcome to Savory Bites</h2>
-            <p>We are a family-owned restaurant dedicated to serving the finest cuisine made with locally-sourced ingredients. Our chefs combine traditional recipes with modern techniques to create unforgettable dining experiences.</p>
+            <h2>Welcome to {{ restaurant.name }}</h2>
+            <p>{{ restaurant.description }}</p>
         </div>
     </div>
 
@@ -394,7 +407,7 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>About Us</h3>
-                    <p>Savory Bites offers a unique dining experience with a focus on seasonal ingredients and innovative cuisine.</p>
+                    <p>{{ restaurant.name }} offers a unique dining experience with a focus on seasonal ingredients and innovative cuisine.</p>
                 </div>
                 <div class="footer-section">
                     <h3>Hours</h3>
@@ -405,14 +418,17 @@
                 <div class="footer-section">
                     <h3>Contact</h3>
                     <p>123 Culinary Street, Foodville</p>
-                    <p>Phone: (555) 123-4567</p>
-                    <p>Email: info@savorybites.com</p>
+                    {% if restaurant.phone %}
+                        <p>Phone: {{ restaurant.phone }}</p>
+                    {% endif %}
+                    <p>Email: info@{{ restaurant.name|lower }}.com</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2023 Savory Bites Restaurant. All rights reserved.</p>
+                <p>&copy; 2023 {{ restaurant.name }}. All rights reserved.</p>
             </div>
         </div>
     </footer>
 </body>
 </html>
+{% endblock %}
