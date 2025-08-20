@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import home_view, about_view, contact_view 
+from .views import home_view, about_view, contact_view, reservations_view
 from django.contrib import admin
 from django.urls import path, include
 
@@ -11,4 +11,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls')),
 path('contact/', contact_view, name='contact'),
+    path('reservations/', reservations_view, name='reservations'),
 ]
