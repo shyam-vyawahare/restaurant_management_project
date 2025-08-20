@@ -161,3 +161,6 @@ TEMPLATES = [
         },
     },
 ]
+
+# Restaurant email (example email)
+RESTAURANT_EMAIL = "reservations@yourrestaurant.com"

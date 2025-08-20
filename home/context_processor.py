@@ -1,10 +1,11 @@
-from datetime import datetime
+ffrom datetime import datetime
 
 def global_context(request):
     """
     Adds global context variables to all templates
     """
     from .models import Restaurant
+    from django.conf import settings
     
     try:
         restaurant = Restaurant.objects.first()
@@ -13,5 +14,6 @@ def global_context(request):
     
     return {
         'current_year': datetime.now().year,
-        'restaurant': restaurant
+        'restaurant': restaurant,
+        'restaurant_email': getattr(settings, 'RESTAURANT_EMAIL', 'contact@restaurant.com')
     }
