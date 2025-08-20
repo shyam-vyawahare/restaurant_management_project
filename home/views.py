@@ -13,17 +13,19 @@ def home_view(request):
     Ensures there is always a restaurant instance with id=1.
     If not found, creates one with default values.
     """
+    default_phone = getattr(settings, 'RESTAURANT_PHONE', '+1 (555) 123-4567')
+
     restaurant, created = Restaurant.objects.get_or_create(
         id=1,
         defaults={
             'name': 'Tasty Bites',
             'description': 'Welcome to our restaurant!',
-            'phone': getattr(settings, 'RESTAURANT_PHONE', 'N/A')
+            'phone': default_phone
         }
     )
     return render(request, 'home/home.html', {
         'restaurant': restaurant,
-        'default_phone': getattr(settings, 'RESTAURANT_PHONE', 'N/A')
+        'default_phone': default_phone
     })
 
 
