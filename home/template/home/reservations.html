@@ -9,12 +9,12 @@
         <p>Book your table at {{ restaurant.name }}</p>
     </div>
 
-<div class="reservation-placeholder">
-    <div class="placeholder-icon">📅</div>
+    <div class="reservation-placeholder">
+        <div class="placeholder-icon">📅</div>
         <h2>Reservation System Coming Soon</h2>
         <p>We're currently working on our online reservation system.</p>
         <p>In the meantime, please call us at <strong>{{ restaurant.phone }}</strong> to make a reservation.</p>
-                                                                    
+        
         <div class="contact-alternatives">
             <p>Or reach us at:</p>
             <p>📧 {{ restaurant.email|default:"contact@restaurant.com" }}</p>
@@ -32,83 +32,83 @@
 </div>
 
 <style>
-                                                                                                                                                                                        .container {
-                                                                                                                                                                                                max-width: 800px;
-                                                                                                                                                                                                        margin: 2rem auto;
-                                                                                                                                                                                                                padding: 0 1rem;
-                                                                                                                                                                                                                    }
+    .container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
 
-                                                                                                                                                                                                                        .page-header {
-                                                                                                                                                                                                                                text-align: center;
-                                                                                                                                                                                                                                        margin-bottom: 3rem;
-                                                                                                                                                                                                                                            }
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
 
-                                                                                                                                                                                                                                                .page-header h1 {
-                                                                                                                                                                                                                                                        color: #d32f2f;
-                                                                                                                                                                                                                                                                margin-bottom: 0.5rem;
-                                                                                                                                                                                                                                                                    }
+    .page-header h1 {
+        color: #d32f2f;
+        margin-bottom: 0.5rem;
+    }
 
-                                                                                                                                                                                                                                                                        .reservation-placeholder {
-                                                                                                                                                                                                                                                                                background: white;
-                                                                                                                                                                                                                                                                                        padding: 3rem;
-                                                                                                                                                                                                                                                                                                border-radius: 12px;
-                                                                                                                                                                                                                                                                                                        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                                                                                                                                                                                                                                                                                                                text-align: center;
-                                                                                                                                                                                                                                                                                                                        margin-bottom: 2rem;
-                                                                                                                                                                                                                                                                                                                            }
+    .reservation-placeholder {
+        background: white;
+        padding: 3rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        text-align: center;
+        margin-bottom: 2rem;
+    }
 
-                                                                                                                                                                                                                                                                                                                                .placeholder-icon {
-                                                                                                                                                                                                                                                                                                                                        font-size: 4rem;
-                                                                                                                                                                                                                                                                                                                                                margin-bottom: 1rem;
-                                                                                                                                                                                                                                                                                                                                                    }
+    .placeholder-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
 
-                                                                                                                                                                                                                                                                                                                                                        .reservation-placeholder h2 {
-                                                                                                                                                                                                                                                                                                                                                                color: #d32f2f;
-                                                                                                                                                                                                                                                                                                                                                                        margin-bottom: 1rem;
-                                                                                                                                                                                                                                                                                                                                                                            }
+    .reservation-placeholder h2 {
+        color: #d32f2f;
+        margin-bottom: 1rem;
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                                .reservation-placeholder p {
-                                                                                                                                                                                                                                                                                                                                                                                        font-size: 1.1rem;
-                                                                                                                                                                                                                                                                                                                                                                                                margin-bottom: 0.5rem;
-                                                                                                                                                                                                                                                                                                                                                                                                        color: #666;
-                                                                                                                                                                                                                                                                                                                                                                                                            }
+    .reservation-placeholder p {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        color: #666;
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                .contact-alternatives {
-                                                                                                                                                                                                                                                                                                                                                                                                                        margin-top: 2rem;
-                                                                                                                                                                                                                                                                                                                                                                                                                                padding-top: 2rem;
-                                                                                                                                                                                                                                                                                                                                                                                                                                        border-top: 1px solid #eee;
-                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+    .contact-alternatives {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #eee;
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                .reservation-info {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        background: #f8f9fa;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                padding: 2rem;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        border-radius: 8px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                border-left: 4px solid #d32f2f;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
+    .reservation-info {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 8px;
+        border-left: 4px solid #d32f2f;
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        .reservation-info h3 {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                color: #333;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        margin-top: 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+    .reservation-info h3 {
+        color: #333;
+        margin-top: 0;
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                .reservation-info ul {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        list-style: none;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                padding: 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
+    .reservation-info ul {
+        list-style: none;
+        padding: 0;
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        .reservation-info li {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                padding: 0.3rem 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        color: #555;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+    .reservation-info li {
+        padding: 0.3rem 0;
+        color: #555;
+    }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @media (max-width: 768px) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        .reservation-placeholder {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    padding: 2rem;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .placeholder-icon {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        font-size: 3rem;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </style>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    {% endblock %}
+    @media (max-width: 768px) {
+        .reservation-placeholder {
+            padding: 2rem;
+        }
+        
+        .placeholder-icon {
+            font-size: 3rem;
+        }
+    }
+</style>
+{% endblock %}
