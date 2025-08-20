@@ -90,3 +90,9 @@ def menu_view(request):
             'error_message': "Sorry, we're experiencing technical difficulties. Please try again later.",
             'status_code': 500
         }, status=500)
+
+def reservations_view(request):
+    """
+    View for the reservations page - placeholder for future functionality
+    """
+    return render(request, 'home/reservations.html')
