@@ -82,7 +82,6 @@
         <a href="/">Home</a>
         <a href="/menu">Menu</a>
         <a href="/contact">Contact</a>
-        <a href="/reservations">Reservations</a>
     </nav>
 
     <div class="content-wrapper">
@@ -92,6 +91,13 @@
 
     <footer class="footer">
         <div class="footer-content">
+            <!-- Opening Hours Section -->
+            <div class="footer-section">
+                <h4>Opening Hours</h4>
+                <p>{{ opening_hours.weekdays }}</p>
+                <p>{{ opening_hours.weekend }}</p>
+            </div>
+             
             <p class="copyright">
                 &copy; {{ current_year }} {{ restaurant.name }}. All rights reserved.
             </p>
