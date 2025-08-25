@@ -115,3 +115,17 @@ def feedback_view(request):
         form = FeedbackForm()
     
     return render(request, 'home/feedback.html', {'form': form})
+
+def search_view(request):
+    """
+    Placeholder search view - will implement actual search logic later
+    """
+    query = request.GET.get('q', '').strip()
+    
+    # For now, just show the search query
+    context = {
+        'query': query,
+        'results': []  # Empty results for now
+    }
+    
+    return render(request, 'home/search.html', context)
