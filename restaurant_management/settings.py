@@ -129,38 +129,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Restaurant Name Here
-RESTAURANT_NAME = "Tasty Bites" 
+RESTAURANT_NAME = "Tasty Bites"  # Restaurant name here
 
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# 404 page
-DEBUG = False  # Only set this in production
-ALLOWED_HOSTS = ['*']  # For testing, specify your domain in production
-
-# For logo
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# For Context Processor
-# context_processors
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'home.context_processors.global_context',  # Add this line
-            ],
-        },
-    },
-]
-
-# Restaurant email (example email)
-RESTAURANT_EMAIL = "reservations@yourrestaurant.com"
+# Restaurant opening hours
+RESTAURANT_HOURS = {
+    'weekdays': 'Mon - Fri: 11:00 AM - 9:00 PM',
+    'weekend': 'Sat - Sun: 10:00 AM - 10:00 PM',
+    'special': 'Holiday hours may vary'
+}
