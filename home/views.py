@@ -3,6 +3,10 @@ from django.conf import settings
 from django.http import JsonResponse
 from .models import Restaurant
 import logging
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import FeedbackForm
+from .models import Feedback
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -96,3 +100,18 @@ def reservations_view(request):
     View for the reservations page - placeholder for future functionality
     """
     return render(request, 'home/reservations.html')
+
+# Feedback Form
+def feedback_view(request):
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Thank you for your feedback!')
+            return redirect('feedback')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = FeedbackForm()
+    
+    return render(request, 'home/feedback.html', {'form': form})
