@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import home_view, about_view, contact_view, reservations_view, feedback_view
+from .views import home_view, about_view, contact_view, reservations_view, feedback_view, search_view
 from django.contrib import admin
 from django.urls import path, include
 
@@ -13,4 +13,5 @@ urlpatterns = [
 path('contact/', contact_view, name='contact'),
     path('reservations/', reservations_view, name='reservations'),
     path('feedback/', feedback_view, name='feedback'),
+    path('search/', search_view, name='search'),  # Add this line
 ]
