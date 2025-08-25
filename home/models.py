@@ -11,3 +11,28 @@ class Restaurant(models.Model):
     
     def __str__(self):
         return self.name
+
+from django.db import models
+
+class Feedback(models.Model):
+    RATING_CHOICES = [
+    (1, '⭐ - Poor'),
+    (2, '⭐⭐ - Fair'),
+    (3, '⭐⭐⭐ - Good'),
+    (4, '⭐⭐⭐⭐ - Very Good'),
+    (5, '⭐⭐⭐⭐⭐ - Excellent'),
+]
+                                                    
+name = models.CharField(max_length=100, blank=True, null=True)
+email = models.EmailField(blank=True, null=True)
+rating = models.IntegerField(choices=RATING_CHOICES, blank=True, null=True)
+comments = models.TextField()
+created_at = models.DateTimeField(auto_now_add=True)
+is_approved = models.BooleanField(default=False)
+                                                                                
+class Meta:
+    ordering = ['-created_at']
+    verbose_name_plural = 'Feedback'
+                                                                                                        
+def __str__(self):
+    return f"Feedback from {self.name or 'Anonymous'} - {self.created_at.strftime('%Y-%m-%d')}"
