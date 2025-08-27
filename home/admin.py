@@ -92,3 +92,18 @@ class OrderItemAdmin(admin.ModelAdmin):
 admin.site.register(MenuItem, MenuItemAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
+
+# Admin ation after menu model
+@admin.action(description='Mark selected orders as completed')
+def mark_completed(modeladmin, request, queryset):
+    queryset.update(status='completed')
+
+@admin.action(description='Toggle availability of selected menu items')
+def toggle_availability(modeladmin, request, queryset):
+    for item in queryset:
+        item.is_available = not item.is_available
+        item.save()
+
+# Add to admin classes
+MenuItemAdmin.actions = [toggle_availability]
+OrderAdmin.actions = [mark_completed]
