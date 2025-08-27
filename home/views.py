@@ -7,6 +7,9 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import FeedbackForm
 from .models import Feedback
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -129,3 +132,60 @@ def search_view(request):
     }
     
     return render(request, 'home/search.html', context)
+
+# API view
+@api_view(['GET'])
+def menu_api_view(request):
+    """
+    API endpoint to retrieve restaurant menu
+    Returns hardcoded menu data for now
+    """
+    menu_data = [
+        {
+            "id": 1,
+            "name": "Margherita Pizza",
+            "description": "Classic pizza with tomato sauce, fresh mozzarella, and basil leaves",
+            "price": "12.99",
+            "category": "Main Course",
+            "is_vegetarian": True,
+            "is_available": True
+        },
+        {
+            "id": 2,
+            "name": "Spaghetti Carbonara",
+            "description": "Traditional Italian pasta with eggs, cheese, pancetta, and black pepper",
+            "price": "14.50",
+            "category": "Main Course",
+            "is_vegetarian": False,
+            "is_available": True
+        },
+        {
+            "id": 3,
+            "name": "Caesar Salad",
+            "description": "Crisp romaine lettuce with parmesan cheese, croutons, and Caesar dressing",
+            "price": "8.99",
+            "category": "Appetizer",
+            "is_vegetarian": True,
+            "is_available": True
+        },
+        {
+            "id": 4,
+            "name": "Grilled Salmon",
+            "description": "Fresh salmon fillet grilled to perfection with lemon butter sauce",
+            "price": "18.99",
+            "category": "Main Course",
+            "is_vegetarian": False,
+            "is_available": True
+        },
+        {
+            "id": 5,
+            "name": "Tiramisu",
+            "description": "Classic Italian dessert with coffee-soaked ladyfingers and mascarpone cream",
+            "price": "6.99",
+            "category": "Dessert",
+            "is_vegetarian": True,
+            "is_available": True
+        }
+    ]
+    
+    return Response(menu_data, status=status.HTTP_200_OK)
