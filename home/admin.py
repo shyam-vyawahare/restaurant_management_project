@@ -9,6 +9,9 @@ from .models import Feedback
 # Menu items
 from .models import MenuItem, Order, OrderItem
 
+# Order model import
+from .models import Order, OrderItem
+
 admin.site.register(Restaurant)
 
 @admin.register(Restaurant)
@@ -107,3 +110,55 @@ def toggle_availability(modeladmin, request, queryset):
 # Add to admin classes
 MenuItemAdmin.actions = [toggle_availability]
 OrderAdmin.actions = [mark_completed]
+
+# Admin Regesteration
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 1
+    readonly_fields = ['unit_price', 'subtotal']
+    fields = ['menu_item', 'quantity', 'unit_price', 'subtotal']
+    
+    def subtotal(self, obj):
+        return obj.subtotal
+    subtotal.short_description = 'Subtotal'
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['id', 'customer_info', 'total_amount', 'status', 'payment_status', 'created_at']
+    list_filter = ['status', 'payment_status', 'payment_method', 'created_at']
+    search_fields = ['guest_name', 'guest_phone', 'guest_email', 'customer__username']
+    readonly_fields = ['created_at', 'updated_at', 'total_amount']
+    inlines = [OrderItemInline]
+    fieldsets = (
+        ('Customer Information', {
+            'fields': ('customer', 'guest_name', 'guest_phone', 'guest_email')
+        }),
+        ('Order Details', {
+            'fields': ('total_amount', 'status', 'payment_method', 'payment_status')
+        }),
+        ('Delivery Information', {
+            'fields': ('delivery_address', 'delivery_notes'),
+            'classes': ('collapse',)
+        }),
+        ('Special Instructions', {
+            'fields': ('special_instructions',),
+            'classes': ('collapse',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def customer_info(self, obj):
+        if obj.customer:
+            return obj.customer.username
+        return obj.guest_name or "Guest"
+    customer_info.short_description = 'Customer'
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ['order', 'menu_item', 'quantity', 'unit_price', 'subtotal']
+    list_filter = ['order__status']
+    search_fields = ['order__id', 'menu_item__name']
+    readonly_fields = ['subtotal']
