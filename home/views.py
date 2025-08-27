@@ -194,3 +194,19 @@ def menu_api_view(request):
     
     serializer = MenuItemSerializer(menu_data, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# Simple filtering by category
+    category = request.GET.get('category')
+    if category:
+        filtered_data = [item for item in menu_data if item['category'].lower() == category.lower()]
+        return Response(filtered_data, status=status.HTTP_200_OK)
+    
+# Simple filtering by vegetarian
+    vegetarian = request.GET.get('vegetarian')
+    if vegetarian:
+        is_veg = vegetarian.lower() == 'true'
+        filtered_data = [item for item in menu_data if item['is_vegetarian'] == is_veg]
+        return Response(filtered_data, status=status.HTTP_200_OK)
+    
+    return Response(menu_data, status=status.HTTP_200_OK)
