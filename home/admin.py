@@ -12,6 +12,11 @@ from .models import MenuItem, Order, OrderItem
 # Order model import
 from .models import Order, OrderItem
 
+# User profile imports
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+from .models import UserProfile
+
 admin.site.register(Restaurant)
 
 @admin.register(Restaurant)
@@ -162,3 +167,48 @@ class OrderItemAdmin(admin.ModelAdmin):
     list_filter = ['order__status']
     search_fields = ['order__id', 'menu_item__name']
     readonly_fields = ['subtotal']
+
+# User Proile admin
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    verbose_name_plural = 'Profile'
+    fields = ('phone_number', 'date_of_birth', 'address', 'profile_picture', 
+              'email_verified', 'phone_verified')
+    readonly_fields = ('created_at', 'updated_at')
+
+class CustomUserAdmin(UserAdmin):
+    inlines = (UserProfileInline,)
+    list_display = ('username', 'email', 'first_name', 'last_name', 'get_phone_number', 'is_staff')
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
+    
+    def get_phone_number(self, obj):
+        return obj.profile.phone_number if hasattr(obj, 'profile') else None
+    get_phone_number.short_description = 'Phone Number'
+
+# Re-register UserAdmin
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'phone_number', 'email_verified', 'phone_verified', 'created_at')
+    list_filter = ('email_verified', 'phone_verified', 'created_at')
+    search_fields = ('user__username', 'user__email', 'user__first_name', 'user__last_name', 'phone_number')
+    readonly_fields = ('created_at', 'updated_at')
+    
+    fieldsets = (
+        ('User Information', {
+            'fields': ('user',)
+        }),
+        ('Contact Details', {
+            'fields': ('phone_number', 'email_verified', 'phone_verified')
+        }),
+        ('Personal Information', {
+            'fields': ('date_of_birth', 'address', 'profile_picture')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
