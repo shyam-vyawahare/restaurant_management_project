@@ -226,8 +226,6 @@
         .search-icon {
             font-size: 1.2rem;
         }
-
-    /* Responsive
         
         .btn {
             display: inline-block;
@@ -387,38 +385,164 @@
             padding-top: 20px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
+
+    /* Menu Section Styles */
+    .menu-section {
+        margin: 3rem 0;
+    }
+
+    .menu-title {
+        text-align: center;
+        color: #d32f2f;
+        margin-bottom: 2rem;
+        font-size: 2.2rem;
+    }
+
+    .menu-category {
+        margin-bottom: 3rem;
+    }
+
+    .category-title {
+        color: #333;
+        border-bottom: 2px solid #d32f2f;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+    }
+
+    .menu-items-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .menu-item-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .menu-item-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    .menu-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .item-name {
+        color: #d32f2f;
+        margin: 0;
+        font-size: 1.2rem;
+        flex: 1;
+    }
+
+    .item-price {
+        color: #2e7d32;
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-left: 1rem;
+        white-space: nowrap;
+    }
+
+    .item-description {
+        color: #666;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+
+    .item-badges {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .badge.vegetarian {
+        background-color: #e8f5e8;
+        color: #2e7d32;
+        border: 1px solid #c8e6c9;
+    }
+
+    .badge.unavailable {
+        background-color: #ffebee;
+        color: #d32f2f;
+        border: 1px solid #ffcdd2;
+    }
+
+    .menu-unavailable {
+        text-align: center;
+        padding: 3rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        color: #666;
+    }
         
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-                gap: 20px;
-            }
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
             
-            nav ul {
-                gap: 15px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
+    .nav ul {
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
             
-            .hero h1 {
-                font-size: 36px;
-            }
+    .hero h1 {
+        font-size: 36px;
+    }
             
-            .hero p {
-                font-size: 18px;
-            }
+    .hero p {
+        font-size: 18px;
+    }
             
-            .restaurant-logo {
-                max-width: 200px;
-                max-height: 100px;
-            }
+    .restaurant-logo {
+        max-width: 200px;
+        max-height: 100px;
+    }
             
-            .header h1 {
-                font-size: 2rem;
-            }
-        }
+    .header h1 {
+        font-size: 2rem;
+    }
+
+    .menu-items-grid {
+        grid-template-columns: 1fr;
+    }
+        
+    .menu-item-header {
+        flex-direction: column;
+    }
+        
+    .item-price {
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
+        
+    .menu-title {
+        font-size: 1.8rem;
+    }
+        
+    .category-title {
+        font-size: 1.3rem;
+    }
+}
     </style>
 </head>
 <body>
@@ -485,6 +609,42 @@
                 </div>
             </form>
         </div>
+
+    <!-- Menu Display Section -->
+    <div class="menu-section">
+        <h2 class="menu-title">Our Menu</h2>
+        
+        {% if menu_by_category %}
+            {% for category, items in menu_by_category.items %}
+            <div class="menu-category">
+                <h3 class="category-title">{{ category }}</h3>
+                <div class="menu-items-grid">
+                    {% for item in items %}
+                    <div class="menu-item-card">
+                        <div class="menu-item-header">
+                            <h4 class="item-name">{{ item.name }}</h4>
+                            <span class="item-price">${{ item.price }}</span>
+                        </div>
+                        <p class="item-description">{{ item.description }}</p>
+                        <div class="item-badges">
+                            {% if item.is_vegetarian %}
+                            <span class="badge vegetarian">🌱 Vegetarian</span>
+                            {% endif %}
+                            {% if not item.is_available %}
+                            <span class="badge unavailable">⏸️ Unavailable</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="menu-unavailable">
+                <p>Our menu is currently being updated. Please check back soon!</p>
+            </div>
+        {% endif %}
+    </div>
 
         <div class="welcome-card">
             <h2>Welcome to {{ restaurant.name }}</h2>
