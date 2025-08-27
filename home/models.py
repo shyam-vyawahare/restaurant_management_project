@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.validators import MinValueValidator
+from django.contrib.auth.models import User
 
 class Restaurant(models.Model):
     name = models.CharField(max_length=100, default="Our Restaurant")
@@ -101,3 +103,132 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity}x {self.menu_item.name} (Order #{self.order.id})"
+
+# Order model
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('preparing', 'Preparing'),
+        ('ready', 'Ready for Pickup/Delivery'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    PAYMENT_CHOICES = [
+        ('cash', 'Cash'),
+        ('card', 'Credit/Debit Card'),
+        ('digital', 'Digital Payment'),
+    ]
+    
+    # Customer information (can be authenticated user or guest)
+    customer = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders'
+    )
+    
+    # Guest customer information (if not logged in)
+    guest_name = models.CharField(max_length=100, blank=True)
+    guest_phone = models.CharField(max_length=20, blank=True)
+    guest_email = models.EmailField(blank=True)
+    
+    # Order details
+    total_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0.01)]
+    )
+    
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending'
+    )
+    
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_CHOICES,
+        default='cash'
+    )
+    
+    payment_status = models.BooleanField(default=False)  # True if paid
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # Delivery information (optional)
+    delivery_address = models.TextField(blank=True)
+    delivery_notes = models.TextField(blank=True)
+    
+    # Order notes
+    special_instructions = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Order'
+        verbose_name_plural = 'Orders'
+        indexes = [
+            models.Index(fields=['status', 'created_at']),
+            models.Index(fields=['customer', 'created_at']),
+        ]
+
+    def __str__(self):
+        if self.customer:
+            return f"Order #{self.id} - {self.customer.username}"
+        else:
+            return f"Order #{self.id} - {self.guest_name or 'Guest'}"
+
+    def save(self, *args, **kwargs):
+        # Auto-calculate total if not set (from order items)
+        if not self.total_amount and self.id:
+            self.total_amount = sum(item.subtotal for item in self.items.all())
+        super().save(*args, **kwargs)
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='items'
+    )
+    
+    menu_item = models.ForeignKey(
+        'MenuItem',  # Reference to your MenuItem model
+        on_delete=models.PROTECT,  # Prevent deletion if referenced
+        related_name='order_items'
+    )
+    
+    quantity = models.PositiveIntegerField(
+        default=1,
+        validators=[MinValueValidator(1)]
+    )
+    
+    unit_price = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        validators=[MinValueValidator(0.01)]
+    )
+    
+    # Timestamp for when this item was added
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Order Item'
+        verbose_name_plural = 'Order Items'
+        unique_together = ['order', 'menu_item']  # Prevent duplicate items in same order
+
+    def __str__(self):
+        return f"{self.quantity}x {self.menu_item.name} (Order #{self.order.id})"
+
+    @property
+    def subtotal(self):
+        return self.quantity * self.unit_price
+
+    def save(self, *args, **kwargs):
+        # Auto-set unit price from menu item if not set
+        if not self.unit_price and self.menu_item:
+            self.unit_price = self.menu_item.price
+        super().save(*args, **kwargs)
