@@ -10,6 +10,8 @@ from .models import Feedback
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from .serializers import MenuItemSerializer
+
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -189,3 +191,6 @@ def menu_api_view(request):
     ]
     
     return Response(menu_data, status=status.HTTP_200_OK)
+    
+    serializer = MenuItemSerializer(menu_data, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
