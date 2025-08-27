@@ -137,3 +137,7 @@ RESTAURANT_HOURS = {
     'weekend': 'Sat - Sun: 10:00 AM - 10:00 PM',
     'special': 'Holiday hours may vary'
 }
+
+# User Profile
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
