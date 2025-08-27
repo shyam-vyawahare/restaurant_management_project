@@ -12,8 +12,7 @@ class Restaurant(models.Model):
     def __str__(self):
         return self.name
 
-from django.db import models
-
+# Feedback form model
 class Feedback(models.Model):
     RATING_CHOICES = [
     (1, '⭐ - Poor'),
