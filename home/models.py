@@ -382,3 +382,33 @@ class MenuItem(models.Model):
 
     def __str__(self):
         return f"{self.name} - ${self.price}"
+
+# For Location
+from django.db import models
+
+class RestaurantLocation(models.Model):
+    address = models.TextField()
+    phone = models.CharField(max_length=20)
+    email = models.EmailField()
+    google_maps_embed_url = models.URLField(blank=True, null=True)
+    hours_of_operation = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        verbose_name = "Restaurant Location"
+        verbose_name_plural = "Restaurant Location"
+    
+    def __str__(self):
+        return "Restaurant Location Configuration"
+    
+    def save(self, *args, **kwargs):
+        # Ensure only one instance exists
+        if not self.pk and RestaurantLocation.objects.exists():
+            # Update the existing instance instead of creating a new one
+            existing = RestaurantLocation.objects.first()
+            existing.address = self.address
+            existing.phone = self.phone
+            existing.email = self.email
+            existing.google_maps_embed_url = self.google_maps_embed_url
+            existing.hours_of_operation = self.hours_of_operation
+            return existing.save(*args, **kwargs)
+        return super().save(*args, **kwargs)
