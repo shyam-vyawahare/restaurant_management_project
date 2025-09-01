@@ -18,6 +18,10 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from .models import UserProfile
 
+# Restaurant Location import
+from .models import RestaurantLocation
+
+
 admin.site.register(Restaurant)
 
 @admin.register(Restaurant)
@@ -240,3 +244,19 @@ class MenuItemAdmin(admin.ModelAdmin):
             'fields': ('is_vegetarian', 'is_available')
         }),
     )
+
+# Restaurant Location
+@admin.register(RestaurantLocation)
+class RestaurantLocationAdmin(admin.ModelAdmin):
+    list_display = ('address', 'phone', 'email')
+    fieldsets = (
+        (None, {
+            'fields': ('address', 'phone', 'email', 'google_maps_embed_url', 'hours_of_operation')
+        }),
+    )
+    
+    def has_add_permission(self, request):
+        # Allow only one instance
+        if self.model.objects.count() >= 1:
+            return False
+        return super().has_add_permission(request)
