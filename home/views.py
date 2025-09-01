@@ -6,11 +6,11 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 import logging
-
 from .models import Restaurant, Feedback, RestaurantConfig
 from .forms import FeedbackForm
 from .serializers import MenuItemSerializer
 from .models import MenuItem
+from .models import RestaurantLocation
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -238,3 +238,28 @@ def menu_view(request):
         'menu_by_category': menu_by_category,
     }
     return render(request, 'menu.html', context)
+
+# Location view
+def home_view(request):
+    # Try to get location from database or settings
+    try:
+        location = RestaurantLocation.objects.first()
+        if not location:
+            # Create default location from settings
+            location = RestaurantLocation.objects.create(
+                address=getattr(settings, 'RESTAURANT_ADDRESS', '123 Gourmet Street, Foodville, FC 12345'),
+                phone=getattr(settings, 'RESTAURANT_PHONE', '+1 (555) 123-4567'),
+                email=getattr(settings, 'RESTAURANT_EMAIL', 'info@restaurant.com'),
+                google_maps_embed_url=getattr(settings, 'RESTAURANT_GOOGLE_MAPS_EMBED_URL', '')
+            )
+    except:
+        # Fallback to settings
+        location = None
+    
+    context = {
+        'restaurant_address': location.address if location else getattr(settings, 'RESTAURANT_ADDRESS', ''),
+        'restaurant_phone': location.phone if location else getattr(settings, 'RESTAURANT_PHONE', ''),
+        'restaurant_email': location.email if location else getattr(settings, 'RESTAURANT_EMAIL', ''),
+        'google_maps_embed_url': location.google_maps_embed_url if location else getattr(settings, 'RESTAURANT_GOOGLE_MAPS_EMBED_URL', ''),
+    }
+    return render(request, 'home.html', context)
