@@ -412,3 +412,19 @@ class RestaurantLocation(models.Model):
             existing.hours_of_operation = self.hours_of_operation
             return existing.save(*args, **kwargs)
         return super().save(*args, **kwargs)
+
+# Contact Submission
+class ContactSubmission(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField(blank=True, null=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    is_reviewed = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-submitted_at']
+        verbose_name = 'Contact Submission'
+        verbose_name_plural = 'Contact Submissions'
+    
+    def __str__(self):
+        return f"Contact from {self.name} ({self.submitted_at.strftime('%Y-%m-%d')})"
