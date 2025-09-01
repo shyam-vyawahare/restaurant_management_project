@@ -31,7 +31,7 @@ class FeedbackForm(forms.ModelForm):
             'comments': 'Comments'
         }
 
-# Contact form submission
+# Contact form submission code here
 class ContactForm(forms.ModelForm):
     class Meta:
         model = ContactSubmission
