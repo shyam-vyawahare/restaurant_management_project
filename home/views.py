@@ -10,6 +10,7 @@ import logging
 from .models import Restaurant, Feedback, RestaurantConfig
 from .forms import FeedbackForm
 from .serializers import MenuItemSerializer
+from .models import MenuItem
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -219,3 +220,21 @@ def menu_api_view(request):
     # Serialize the data
     serializer = MenuItemSerializer(filtered_data, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# Menu items
+def menu_view(request):
+    # Get all available menu items
+    menu_items = MenuItem.objects.filter(is_available=True)
+    
+    # Group items by category
+    menu_by_category = {}
+    for item in menu_items:
+        if item.category not in menu_by_category:
+            menu_by_category[item.category] = []
+        menu_by_category[item.category].append(item)
+    
+    context = {
+        'menu_by_category': menu_by_category,
+    }
+    return render(request, 'menu.html', context)
