@@ -283,3 +283,16 @@ def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
     except UserProfile.DoesNotExist:
         UserProfile.objects.create(user=instance)
+
+# name display
+class RestaurantConfig(models.Model):
+    name = models.CharField(max_length=100, default="Gourmet Delight")
+    tagline = models.CharField(max_length=200, default="Exquisite Dining Experience")
+    logo = models.ImageField(upload_to='restaurant/', blank=True, null=True)
+    
+    class Meta:
+        verbose_name = "Restaurant Configuration"
+        verbose_name_plural = "Restaurant Configuration"
+    
+    def __str__(self):
+        return self.name
