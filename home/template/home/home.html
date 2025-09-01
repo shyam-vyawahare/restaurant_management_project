@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ restaurant.name }}</title>
-    <!-- Internal CSS -->    
     <style>
-        /* The Basic Css used Internally */o
+        /* Base Styles */
         body {
             font-family: 'Arial', sans-serif;
             line-height: 1.6;
@@ -13,69 +14,178 @@
             background-color: #f8f9fa;
             color: #333;
         }
-                                                                                                            
-        header {
-            background-color: #ffffff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            padding: 2rem;
+        
+        /* Header Styles */
+        .restaurant-header {
             text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            color: white;
             margin-bottom: 2rem;
         }
-                                                                                                                                                                                                
-        h1 {
-            color: #d32f2f;  /* Restaurant red theme */
+        
+        .restaurant-name {
             font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+            margin: 0;
+            font-weight: 700;
         }
-                                                                                                                                                                                                                                                            
+        
+        .restaurant-tagline {
+            font-size: 1.2rem;
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
         .restaurant-description {
             font-size: 1.1rem;
             color: #666;
             max-width: 800px;
             margin: 0 auto 1.5rem;
         }
-                                                                                                                                                                                                                                                                                                                                    
+        
         .restaurant-logo {
             border-radius: 50%;
             border: 3px solid #d32f2f;
             margin: 1rem 0;
             box-shadow: 0 3px 10px rgba(0,0,0,0.2);
         }
-                                                                                                                                                                                                                                                                                                                                                                                                            
+        
         .hours {
             background-color: #f1f1f1;
             padding: 1rem;
             border-radius: 5px;
             display: inline-block;
             margin-top: 1rem;
+            color: #333;
         }
         
+        /* Location Section Styles */
+        .location-section {
+            padding: 3rem 0;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .location-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        
+        .address-info h3 {
+            color: #d32f2f;
+            margin-bottom: 1rem;
+        }
+        
+        .address-info p {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        .contact-details {
+            margin: 1.5rem 0;
+        }
+        
+        .hours-of-operation {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .hours-of-operation h4 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .map-container {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .location-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .map-container {
+                height: 250px;
+            }
+        }
     </style>
 </head>
 <body>
-    <header>
+    <header class="restaurant-header">
         {% if restaurant.logo %}
-        <img src="{{ restaurant.logo.url }}" 
-        alt="{{ restaurant.name }} logo" 
-        width="150" 
-        class="restaurant-logo">
+            <img src="{{ restaurant.logo.url }}" 
+                 alt="{{ restaurant.name }} logo" 
+                 width="150" 
+                 class="restaurant-logo">
         {% endif %}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-        <h1>{{ restaurant.name }}</h1>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+        
+        <h1 class="restaurant-name">{{ restaurant.name }}</h1>
+        
+        {% if restaurant.tagline %}
+            <p class="restaurant-tagline">{{ restaurant.tagline }}</p>
+        {% endif %}
+        
         {% if restaurant.description %}
-        <p class="restaurant-description">
-            {{ restaurant.description }}
-        </p>
+            <p class="restaurant-description">
+                {{ restaurant.description }}
+            </p>
         {% endif %}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+        
         {% if restaurant.opening_time and restaurant.closing_time %}
-        <div class="hours">
-            Open: {{ restaurant.opening_time|time:"g:i A" }} - 
-            {{ restaurant.clening_time|time:"g:i A" }}
-        </div>
+            <div class="hours">
+                Open: {{ restaurant.opening_time|time:"g:i A" }} - 
+                {{ restaurant.closing_time|time:"g:i A" }}
+            </div>
         {% endif %}
     </header>
+
+    <section class="location-section">
+        <div class="container">
+            <h2>Visit Us</h2>
+            <div class="location-content">
+                <div class="address-info">
+                    <h3>Location</h3>
+                    <p>{{ restaurant.address }}</p>
+                    
+                    <div class="contact-details">
+                        <p><strong>Phone:</strong> {{ restaurant.phone }}</p>
+                        <p><strong>Email:</strong> {{ restaurant.email }}</p>
+                    </div>
+                    
+                    <div class="hours-of-operation">
+                        <h4>Hours</h4>
+                        <p>Monday - Friday: 11:00 AM - 9:00 PM</p>
+                        <p>Saturday - Sunday: 10:00 AM - 10:00 PM</p>
+                    </div>
+                </div>
+                
+                {% if restaurant.google_maps_embed_url %}
+                    <div class="map-container">
+                        <iframe 
+                            src="{{ restaurant.google_maps_embed_url }}" 
+                            width="100%" 
+                            height="300" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
 </body>
-<!-- Add your menu/other sections here -->
 </html>
