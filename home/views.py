@@ -11,6 +11,8 @@ from .forms import FeedbackForm
 from .serializers import MenuItemSerializer
 from .models import MenuItem
 from .models import RestaurantLocation
+from .forms import ContactForm
+from .models import ContactSubmission
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -261,5 +263,26 @@ def home_view(request):
         'restaurant_phone': location.phone if location else getattr(settings, 'RESTAURANT_PHONE', ''),
         'restaurant_email': location.email if location else getattr(settings, 'RESTAURANT_EMAIL', ''),
         'google_maps_embed_url': location.google_maps_embed_url if location else getattr(settings, 'RESTAURANT_GOOGLE_MAPS_EMBED_URL', ''),
+    }
+    return render(request, 'home.html', context)
+
+# Contact form submission
+def home_view(request):
+    # Handle form submission
+    if request.method == 'POST' and 'contact_submit' in request.POST:
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Thank you for your message! We will get back to you soon.')
+            return redirect('home')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ContactForm()
+    
+    # Your existing context data
+    context = {
+        'form': form,
+        # ... your existing context variables
     }
     return render(request, 'home.html', context)
