@@ -223,3 +223,20 @@ class RestaurantConfigAdmin(admin.ModelAdmin):
             'fields': ('name', 'tagline', 'logo')
         }),
     )
+
+# Menu items
+@admin.register(MenuItem)
+class MenuItemAdmin(admin.ModelAdmin):
+    list_display = ('name', 'category', 'price', 'is_vegetarian', 'is_available')
+    list_filter = ('category', 'is_vegetarian', 'is_available')
+    search_fields = ('name', 'description')
+    list_editable = ('price', 'is_available')
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'description', 'price', 'category')
+        }),
+        ('Status', {
+            'fields': ('is_vegetarian', 'is_available')
+        }),
+    )
