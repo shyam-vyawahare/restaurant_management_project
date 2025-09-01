@@ -141,3 +141,7 @@ RESTAURANT_HOURS = {
 # User Profile
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Add to the bottom of your settings.py
+RESTAURANT_NAME = "Gourmet Delight"
+RESTAURANT_TAGLINE = "Exquisite Dining Experience"

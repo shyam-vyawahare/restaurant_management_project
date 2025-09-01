@@ -1,55 +1,69 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import JsonResponse
-from .models import Restaurant
-import logging
-from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import FeedbackForm
-from .models import Feedback
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import MenuItemSerializer
+import logging
 
+from .models import Restaurant, Feedback, RestaurantConfig
+from .forms import FeedbackForm
+from .serializers import MenuItemSerializer
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
-# Home page view
+
 def home_view(request):
     """
-    Ensures there is always a restaurant instance with id=1.
+    Home page view that ensures there is always a restaurant instance with id=1.
     If not found, creates one with default values.
     """
     default_phone = getattr(settings, 'RESTAURANT_PHONE', '+1 (555) 123-4567')
+    restaurant_name = getattr(settings, 'RESTAURANT_NAME', 'Tasty Bites')
+    restaurant_description = getattr(settings, 'RESTAURANT_DESCRIPTION', 'Welcome to our restaurant!')
 
+    # Try to get restaurant config from database
+    try:
+        restaurant_config = RestaurantConfig.objects.first()
+        if not restaurant_config:
+            restaurant_config = RestaurantConfig.objects.create()
+    except Exception as e:
+        logger.error(f"Error accessing RestaurantConfig: {e}")
+        restaurant_config = None
+    
+    # Get or create the main restaurant instance
     restaurant, created = Restaurant.objects.get_or_create(
         id=1,
         defaults={
-            'name': 'Tasty Bites',
-            'description': 'Welcome to our restaurant!',
+            'name': restaurant_name,
+            'description': restaurant_description,
             'phone': default_phone
         }
     )
-    return render(request, 'home/home.html', {
+    
+    context = {
         'restaurant': restaurant,
-        'default_phone': default_phone
-    })
+        'default_phone': default_phone,
+        'restaurant_config': restaurant_config,
+        'restaurant_name': restaurant_config.name if restaurant_config else restaurant_name,
+        'restaurant_tagline': restaurant_config.tagline if restaurant_config else getattr(settings, 'RESTAURANT_TAGLINE', 'Exquisite Dining Experience'),
+    }
+    return render(request, 'home/home.html', context)
 
 
-# About page view
 def about_view(request):
+    """About page view"""
     restaurant = Restaurant.objects.first()
     return render(request, 'about.html', {'restaurant': restaurant})
 
 
-# Custom 404 error handler
 def custom_404(request, exception):
+    """Custom 404 error handler"""
     return render(request, '404.html', status=404)
 
 
-# Menu page view
 def menu_view(request):
     """
     Displays hardcoded menu items (simulating DB data).
@@ -100,14 +114,14 @@ def menu_view(request):
             'status_code': 500
         }, status=500)
 
+
 def reservations_view(request):
-    """
-    View for the reservations page - placeholder for future functionality
-    """
+    """View for the reservations page - placeholder for future functionality"""
     return render(request, 'home/reservations.html')
 
-# Feedback Form
+
 def feedback_view(request):
+    """Feedback form view"""
     if request.method == 'POST':
         form = FeedbackForm(request.POST)
         if form.is_valid():
@@ -121,10 +135,9 @@ def feedback_view(request):
     
     return render(request, 'home/feedback.html', {'form': form})
 
+
 def search_view(request):
-    """
-    Placeholder search view - will implement actual search logic later
-    """
+    """Placeholder search view - will implement actual search logic later"""
     query = request.GET.get('q', '').strip()
     
     # For now, just show the search query
@@ -135,7 +148,7 @@ def search_view(request):
     
     return render(request, 'home/search.html', context)
 
-# API view
+
 @api_view(['GET'])
 def menu_api_view(request):
     """
@@ -190,23 +203,19 @@ def menu_api_view(request):
         }
     ]
     
-    return Response(menu_data, status=status.HTTP_200_OK)
-    
-    serializer = MenuItemSerializer(menu_data, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-# Simple filtering by category
+    # Apply filters if provided
     category = request.GET.get('category')
-    if category:
-        filtered_data = [item for item in menu_data if item['category'].lower() == category.lower()]
-        return Response(filtered_data, status=status.HTTP_200_OK)
-    
-# Simple filtering by vegetarian
     vegetarian = request.GET.get('vegetarian')
+    
+    filtered_data = menu_data
+    
+    if category:
+        filtered_data = [item for item in filtered_data if item['category'].lower() == category.lower()]
+    
     if vegetarian:
         is_veg = vegetarian.lower() == 'true'
-        filtered_data = [item for item in menu_data if item['is_vegetarian'] == is_veg]
-        return Response(filtered_data, status=status.HTTP_200_OK)
+        filtered_data = [item for item in filtered_data if item['is_vegetarian'] == is_veg]
     
-    return Response(menu_data, status=status.HTTP_200_OK)
+    # Serialize the data
+    serializer = MenuItemSerializer(filtered_data, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from .models import RestaurantConfig
 
 # Register your models here.
 from .models import Restaurant
@@ -210,5 +211,15 @@ class UserProfileAdmin(admin.ModelAdmin):
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
+        }),
+    )
+
+# restaurant cinfig
+@admin.register(RestaurantConfig)
+class RestaurantConfigAdmin(admin.ModelAdmin):
+    list_display = ('name', 'tagline')
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'tagline', 'logo')
         }),
     )
