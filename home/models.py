@@ -323,3 +323,62 @@ class MenuItem(models.Model):
 
     def __str__(self):
         return f"{self.name} (${self.price})"
+
+# Menu items
+class MenuItem(models.Model):
+    # Basic information
+    name = models.CharField(
+        max_length=100,
+        help_text="Name of the menu item (e.g., Margherita Pizza)"
+    )
+    
+    description = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Description of the menu item"
+    )
+    
+    price = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        help_text="Price of the item in decimal format (e.g., 12.99)"
+    )
+    
+    # Category field to organize menu items
+    CATEGORY_CHOICES = [
+        ('appetizer', 'Appetizer'),
+        ('main', 'Main Course'),
+        ('dessert', 'Dessert'),
+        ('beverage', 'Beverage'),
+        ('side', 'Side Dish'),
+    ]
+    
+    category = models.CharField(
+        max_length=20,
+        choices=CATEGORY_CHOICES,
+        default='main',
+        help_text="Category of the menu item"
+    )
+    
+    # Status fields
+    is_vegetarian = models.BooleanField(
+        default=False,
+        help_text="Is this item vegetarian?"
+    )
+    
+    is_available = models.BooleanField(
+        default=True,
+        help_text="Is this item currently available?"
+    )
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['category', 'name']
+        verbose_name = 'Menu Item'
+        verbose_name_plural = 'Menu Items'
+
+    def __str__(self):
+        return f"{self.name} - ${self.price}"
