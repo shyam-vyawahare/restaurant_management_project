@@ -142,6 +142,12 @@ RESTAURANT_HOURS = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Add to the bottom of your settings.py
+# For restra name
 RESTAURANT_NAME = "Gourmet Delight"
 RESTAURANT_TAGLINE = "Exquisite Dining Experience"
+
+# For Location
+RESTAURANT_ADDRESS = "123 Gourmet Street, Foodville, FC 12345"
+RESTAURANT_PHONE = "+1 (555) 123-4567"
+RESTAURANT_EMAIL = "info@restaurant.com"
+RESTAURANT_GOOGLE_MAPS_EMBED_URL = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.9663095343004!2d-74.004258724269!3d40.74076987138915!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259bf5c8eef01%3A0x830f84cef0b8c03e!2s123%20Gourmet%20St%2C%20New%20York%2C%20NY%2010001%2C%20USA!5e0!3m2!1sen!2s!4v1693424567890!5m2!1sen!2s"
