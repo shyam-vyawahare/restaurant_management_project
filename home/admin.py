@@ -1,28 +1,16 @@
 from django.contrib import admin
-
 from .models import RestaurantConfig
 
-
 # Register your models here.
-
 from .models import Restaurant
 
-
-
 # Feedback import
-
 from .models import Feedback
 
-
-
 # Menu items
-
 from .models import MenuItem, Order, OrderItem
 
-
-
 # Order model import
-
 from .models import Order, OrderItem
 
 # User profile imports
@@ -32,13 +20,7 @@ from .models import UserProfile
 
 # Restaurant Location import
 from .models import RestaurantLocation
-
-
-
-
 admin.site.register(Restaurant)
-
-
 
 @admin.register(Restaurant)
 
@@ -71,9 +53,7 @@ class RestaurantAdmin(admin.ModelAdmin):
     )
 
 
-
 @admin.register(Feedback)
-
 class FeedbackAdmin(admin.ModelAdmin):
 
     list_display = ['name', 'rating', 'created_at', 'is_approved']
@@ -85,7 +65,6 @@ class FeedbackAdmin(admin.ModelAdmin):
 
 
 # Menu items model
-
 class MenuItemAdmin(admin.ModelAdmin):
 
     list_display = ['name', 'category', 'price', 'is_available', 'is_vegetarian']
@@ -137,7 +116,6 @@ class OrderItemInline(admin.TabularInline):
 
 
 class OrderAdmin(admin.ModelAdmin):
-
     list_display = ['id', 'customer_name', 'customer_phone', 'total_amount', 'status', 'created_at']
 
     list_filter = ['status', 'created_at']
@@ -167,9 +145,7 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': ('created_at', 'updated_at'),
 
             'classes': ('collapse',)
-
         }),
-
     )
 
     
@@ -179,13 +155,10 @@ class OrderAdmin(admin.ModelAdmin):
         if obj:  # Editing an existing object
 
             return self.readonly_fields + ('total_amount',)
-
         return self.readonly_fields
 
 
-
 class OrderItemAdmin(admin.ModelAdmin):
-
     list_display = ['order', 'menu_item', 'quantity', 'price']
 
     list_filter = ['order__status']
@@ -203,61 +176,40 @@ admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
 
 
-
 # Admin ation after menu model
-
 @admin.action(description='Mark selected orders as completed')
-
 def mark_completed(modeladmin, request, queryset):
-
     queryset.update(status='completed')
 
 
 
 @admin.action(description='Toggle availability of selected menu items')
-
 def toggle_availability(modeladmin, request, queryset):
-
     for item in queryset:
-
         item.is_available = not item.is_available
-
         item.save()
 
 
 
 # Add to admin classes
-
 MenuItemAdmin.actions = [toggle_availability]
-
 OrderAdmin.actions = [mark_completed]
 
 
 
 # Admin Regesteration
-
 class OrderItemInline(admin.TabularInline):
-
     model = OrderItem
-
     extra = 1
-
     readonly_fields = ['unit_price', 'subtotal']
-
     fields = ['menu_item', 'quantity', 'unit_price', 'subtotal']
 
-    
-
     def subtotal(self, obj):
-
         return obj.subtotal
-
     subtotal.short_description = 'Subtotal'
 
 
-
 @admin.register(Order)
-
 class OrderAdmin(admin.ModelAdmin):
 
     list_display = ['id', 'customer_info', 'total_amount', 'status', 'payment_status', 'created_at']
@@ -269,65 +221,42 @@ class OrderAdmin(admin.ModelAdmin):
     readonly_fields = ['created_at', 'updated_at', 'total_amount']
 
     inlines = [OrderItemInline]
-
     fieldsets = (
-
         ('Customer Information', {
-
             'fields': ('customer', 'guest_name', 'guest_phone', 'guest_email')
-
         }),
 
         ('Order Details', {
-
             'fields': ('total_amount', 'status', 'payment_method', 'payment_status')
-
         }),
 
         ('Delivery Information', {
-
             'fields': ('delivery_address', 'delivery_notes'),
-
             'classes': ('collapse',)
-
         }),
 
         ('Special Instructions', {
-
             'fields': ('special_instructions',),
-
             'classes': ('collapse',)
-
         }),
 
         ('Timestamps', {
-
             'fields': ('created_at', 'updated_at'),
-
             'classes': ('collapse',)
-
         }),
-
     )
 
     
 
     def customer_info(self, obj):
-
         if obj.customer:
-
             return obj.customer.username
-
         return obj.guest_name or "Guest"
-
     customer_info.short_description = 'Customer'
 
 
-
 @admin.register(OrderItem)
-
 class OrderItemAdmin(admin.ModelAdmin):
-
     list_display = ['order', 'menu_item', 'quantity', 'unit_price', 'subtotal']
 
     list_filter = ['order__status']
@@ -424,3 +353,21 @@ class RestaurantLocationAdmin(admin.ModelAdmin):
         if self.model.objects.count() >= 1:
             return False
         return super().has_add_permission(request)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    return super().has_add_permission(request)                                                              
+
+# Contact Submission 
+@admin.register(ContactSubmission)
+class ContactSubmissionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'submitted_at', 'is_reviewed')
+    list_filter = ('is_reviewed', 'submitted_at')
+    search_fields = ('name', 'email', 'message')
+    readonly_fields = ('submitted_at',)
+    list_editable = ('is_reviewed',)
+    
+    fieldsets = (
+        ('Contact Information', {
+            'fields': ('name', 'email', 'message')
+        }),
+        ('Status', {
+            'fields': ('is_reviewed', 'submitted_at')
+        }),
+    )
