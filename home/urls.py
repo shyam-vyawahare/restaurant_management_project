@@ -14,5 +14,5 @@ urlpatterns = [
     path('reservations/', reservations_view, name='reservations'),
     path('feedback/', feedback_view, name='feedback'),
     path('search/', search_view, name='search'),
-    path('api/menu/', menu_api_view, name='menu-api'),
+        path('api/menu/', menu_api_view, name='menu-api'),
 ]
