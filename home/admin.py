@@ -63,7 +63,6 @@ class FeedbackAdmin(admin.ModelAdmin):
     search_fields = ['name', 'email', 'comments']
 
 
-
 # Menu items model
 class MenuItemAdmin(admin.ModelAdmin):
 
@@ -114,7 +113,6 @@ class OrderItemInline(admin.TabularInline):
         return formset
 
 
-
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'customer_name', 'customer_phone', 'total_amount', 'status', 'created_at']
 
@@ -148,8 +146,6 @@ class OrderAdmin(admin.ModelAdmin):
         }),
     )
 
-    
-
     def get_readonly_fields(self, request, obj=None):
 
         if obj:  # Editing an existing object
@@ -165,8 +161,6 @@ class OrderItemAdmin(admin.ModelAdmin):
 
     search_fields = ['order__customer_name', 'menu_item__name']
 
-
-
 # Register models with their admin classes
 
 admin.site.register(MenuItem, MenuItemAdmin)
@@ -181,21 +175,15 @@ admin.site.register(OrderItem, OrderItemAdmin)
 def mark_completed(modeladmin, request, queryset):
     queryset.update(status='completed')
 
-
-
 @admin.action(description='Toggle availability of selected menu items')
 def toggle_availability(modeladmin, request, queryset):
     for item in queryset:
         item.is_available = not item.is_available
         item.save()
 
-
-
 # Add to admin classes
 MenuItemAdmin.actions = [toggle_availability]
 OrderAdmin.actions = [mark_completed]
-
-
 
 # Admin Regesteration
 class OrderItemInline(admin.TabularInline):
