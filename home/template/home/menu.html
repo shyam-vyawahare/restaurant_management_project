@@ -66,6 +66,23 @@
             text-decoration: none;
             margin-right: 1rem;
         }
+
+    .menu-item-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .no-image {
+        height: 200px;
+        background: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        border-radius: 8px 8px 0 0;
+    }
     </style>
 </head>
 <body>
@@ -89,5 +106,21 @@
             {% endfor %}
         </div>
     </div>
+    <div class="menu-item">
+    {% if item.image %}
+    <img src="{{ item.image.url }}" alt="{{ item.name }}" class="menu-item-image">
+    {% else %}
+    <div class="no-image">No image available</div>
+    {% endif %}
+    
+    <div class="menu-item-content">
+        <h3>{{ item.name }}</h3>
+        <p class="description">{{ item.description }}</p>
+        <p class="price">${{ item.price }}</p>
+        {% if item.is_vegetarian %}
+        <span class="vegetarian-badge">Vegetarian</span>
+        {% endif %}
+    </div>
+</div>
 </body>
 </html>
