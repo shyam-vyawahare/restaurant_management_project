@@ -4,6 +4,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.validators import RegexValidator, MinValueValidator
 from django.utils import timezone
+import os
+from django.utils import timezone
+
 
 class Restaurant(models.Model):
     name = models.CharField(max_length=100, default="Our Restaurant")
@@ -428,3 +431,65 @@ class ContactSubmission(models.Model):
     
     def __str__(self):
         return f"Contact from {self.name} ({self.submitted_at.strftime('%Y-%m-%d')})"
+
+# imsges
+def menu_item_image_path(instance, filename):
+    """Generate file path for new menu item image"""
+    # Get file extension
+    ext = filename.split('.')[-1]
+    # Create filename: menu_items/item_name_timestamp.ext
+    filename = f"{instance.name.replace(' ', '_').lower()}_{timezone.now().strftime('%Y%m%d_%H%M%S')}.{ext}"
+    # Return complete path
+    return os.path.join('menu_items', filename)
+
+class MenuItem(models.Model):
+    CATEGORY_CHOICES = [
+        ('appetizer', 'Appetizer'),
+        ('main', 'Main Course'),
+        ('dessert', 'Dessert'),
+        ('beverage', 'Beverage'),
+        ('side', 'Side Dish'),
+    ]
+    
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    is_vegetarian = models.BooleanField(default=False)
+    is_available = models.BooleanField(default=True)
+    
+    # Add image field
+    image = models.ImageField(
+        upload_to=menu_item_image_path,
+        blank=True,
+        null=True,
+        help_text="Upload an image for this menu item"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['category', 'name']
+        verbose_name = 'Menu Item'
+        verbose_name_plural = 'Menu Items'
+
+    def __str__(self):
+        return f"{self.name} (${self.price})"
+    
+    def save(self, *args, **kwargs):
+        # Delete old image if updating and image has changed
+        if self.pk:
+            try:
+                old_item = MenuItem.objects.get(pk=self.pk)
+                if old_item.image and old_item.image != self.image:
+                    old_item.image.delete(save=False)
+            except MenuItem.DoesNotExist:
+                pass
+        super().save(*args, **kwargs)
+    
+    def delete(self, *args, **kwargs):
+        # Delete associated image when menu item is deleted
+        if self.image:
+            self.image.delete(save=False)
+        super().delete(*args, **kwargs)
