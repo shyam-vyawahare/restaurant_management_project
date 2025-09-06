@@ -16,3 +16,5 @@ urlpatterns = [
     path('search/', search_view, name='search'),
     path('api/menu/', menu_api_view, name='menu-api'),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
