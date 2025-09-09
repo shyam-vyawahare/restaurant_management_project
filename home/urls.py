@@ -2,7 +2,6 @@ from django.urls import path
 from .views import home_view, about_view, contact_view, reservations_view, feedback_view, search_view, menu_api_view
 from django.contrib import admin
 from django.urls import path, include
-
 <!-- url patterns here -->
 urlpatterns = [
     path('', home_view, name='home'),
@@ -16,5 +15,3 @@ urlpatterns = [
     path('search/', search_view, name='search'),
     path('api/menu/', menu_api_view, name='menu-api'),
 ]
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
