@@ -13,6 +13,7 @@ from .models import MenuItem
 from .models import RestaurantLocation
 from .forms import ContactForm
 from .models import ContactSubmission
+from .models import AboutContent
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -286,3 +287,23 @@ def home_view(request):
         # ... your existing context variables
     }
     return render(request, 'home.html', context)
+
+# about us
+def about_view(request):
+    # Get active about content or create default if none exists
+    try:
+        about_content = AboutContent.objects.filter(is_active=True).first()
+        if not about_content:
+            about_content = AboutContent.objects.create(
+                title="About Gourmet Delight",
+                mission="To provide exceptional dining experiences through authentic cuisine and warm hospitality.",
+                history="Founded in 2010, Gourmet Delight has been serving the community with passion and dedication for over a decade."
+            )
+    except:
+        # Fallback content if there's any error
+        about_content = None
+    
+    context = {
+        'about': about_content,
+    }
+    return render(request, 'about.html', context)
