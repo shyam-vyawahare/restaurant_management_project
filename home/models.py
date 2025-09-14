@@ -493,3 +493,21 @@ class MenuItem(models.Model):
         if self.image:
             self.image.delete(save=False)
         super().delete(*args, **kwargs)
+
+# about us
+class AboutContent(models.Model):
+    title = models.CharField(max_length=200, default="About Our Restaurant")
+    mission = models.TextField(help_text="Restaurant's mission statement")
+    history = models.TextField(help_text="Brief history of the restaurant")
+    image = models.ImageField(upload_to='about/', blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "About Content"
+        verbose_name_plural = "About Content"
+
+    def __str__(self):
+        return self.title
