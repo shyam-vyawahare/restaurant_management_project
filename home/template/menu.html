@@ -1,175 +1,181 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Menu - {{ restaurant_name }}</title>
-    <!-- This is basic css styling -->
-    <style>
-        .menu-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .menu-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        
-        .menu-title {
-            color: #d32f2f;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .category-section {
-            margin-bottom: 3rem;
-        }
-        
-        .category-title {
-            color: #333;
-            border-bottom: 2px solid #d32f2f;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
-        }
-        
-        .menu-items {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .menu-item {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        
-        .menu-item:hover {
-            transform: translateY(-5px);
-        }
-        
-        .menu-item-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-        
-        .menu-item-content {
-            padding: 1.5rem;
-        }
-        
-        .menu-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.5rem;
-        }
-        
-        .item-name {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #333;
-            margin: 0;
-        }
-        
-        .item-price {
-            color: #d32f2f;
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-        
-        .item-description {
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 1rem;
-        }
-        
-        .item-badges {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .badge {
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        .vegetarian {
-            background-color: #e8f5e8;
-            color: #2e7d32;
-        }
-        
-        .no-image {
-            height: 200px;
-            background-color: #f5f5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-        }
-        
-        @media (max-width: 768px) {
-            .menu-items {
-                grid-template-columns: 1fr;
-            }
-            
-            .menu-container {
-                padding: 1rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    {% include 'navbar.html' %}
+{% extends 'home/base.html' %} {% load static %} {# Page title block (keeps base.html title behavior) #} {% block title %}Our Menu - {{ restaurant.name }}{% endblock %} {% block content %}
+<style>
+    /* Local page styles (kept here for quick testing; move to a CSS file in production) */
     
-    <div class="menu-container">
-        <div class="menu-header">
-            <h1 class="menu-title">Our Menu</h1>
-            <p>Discover our delicious offerings</p>
-        </div>
-        
-        {% for category, items in menu_by_category.items %}
-        <div class="category-section">
-            <h2 class="category-title">{{ category|title }}</h2>
-            <div class="menu-items">
-                {% for item in items %}
-                <div class="menu-item">
-                    {% if item.image %}
-                    <img src="{{ item.image.url }}" alt="{{ item.name }}" class="menu-item-image">
-                    {% else %}
-                    <div class="no-image">No Image</div>
-                    {% endif %}
-                    
-                    <div class="menu-item-content">
-                        <div class="menu-item-header">
-                            <h3 class="item-name">{{ item.name }}</h3>
-                            <span class="item-price">${{ item.price }}</span>
+    body {
+        font-family: 'Arial', sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f8f8;
+        color: #333;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .page-title {
+        color: #d32f2f;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-size: 2rem;
+    }
+    
+    .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1rem;
+    }
+    
+    .menu-item {
+        background: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        display: flex;
+        flex-direction: column;
+        min-height: 220px;
+    }
+    
+    .menu-item-media {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        display: block;
+    }
+    
+    .no-image {
+        height: 160px;
+        background: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+    }
+    
+    .menu-item-body {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex: 1;
+    }
+    
+    .menu-item h3 {
+        margin: 0;
+        color: #d32f2f;
+        font-size: 1.125rem;
+    }
+    
+    .menu-item .description {
+        margin: 0;
+        color: #444;
+        font-size: 0.95rem;
+        flex: 1;
+    }
+    
+    .menu-item-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .price {
+        font-weight: 700;
+        color: #d32f2f;
+        font-size: 1.05rem;
+    }
+    
+    .vegetarian-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        background: #e8f5e9;
+        color: #2e7d32;
+        font-size: 0.8rem;
+        border: 1px solid #c8e6c9;
+    }
+    
+    nav.menu-nav {
+        background: #333;
+        padding: 0.6rem 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    nav.menu-nav a {
+        color: white;
+        text-decoration: none;
+        margin-right: 1rem;
+        font-size: 0.95rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    }
+    
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<nav class="menu-nav" role="navigation" aria-label="Main navigation">
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'menu' %}">Menu</a>
+    <a href="{% url 'contact' %}">Contact</a>
+</nav>
+
+<div class="container" role="main">
+    <h1 class="page-title">Our Menu — {{ restaurant.name }}</h1>
+
+    {# Category header (you had only "Food" previously) #}
+    <section class="menu-category" aria-labelledby="food-heading">
+        <h2 id="food-heading" style="margin:0 0 1rem 0; font-size:1.25rem; color:#333; border-bottom:2px solid #eee; padding-bottom:.5rem;">
+            Food
+        </h2>
+
+        {# If there are no items, show an empty state #} {% if menu_items %}
+        <div class="menu-grid" role="list">
+            {% for item in menu_items %}
+            <article class="menu-item" role="listitem" aria-labelledby="item-{{ item.id }}-name">
+                {% if item.image %} {# If image is stored via ImageField; use lazy loading #}
+                <img src="{{ item.image.url }}" alt="{{ item.name }}" class="menu-item-media" loading="lazy" width="600" height="360"> {% else %}
+                <div class="no-image">No image available</div>
+                {% endif %}
+
+                <div class="menu-item-body">
+                    <h3 id="item-{{ item.id }}-name">{{ item.name }}</h3>
+                    <p class="description">{{ item.description|default:"Delicious item." }}</p>
+
+                    <div class="menu-item-footer">
+                        <div class="price">
+                            {# Format price to two decimals; change currency symbol as needed #} ${{ item.price|floatformat:2 }}
                         </div>
-                        
-                        <p class="item-description">{{ item.description }}</p>
-                        
-                        <div class="item-badges">
-                            {% if item.is_vegetarian %}
-                            <span class="badge vegetarian">Vegetarian</span>
-                            {% endif %}
-                        </div>
+
+                        {% if item.is_vegetarian %}
+                        <span class="vegetarian-badge" aria-hidden="true">Vegetarian</span> {% endif %} {# Example spot for an "Add to cart" button or link (uncomment when needed) #} {# <a class="btn" href="{% url 'add_to_cart' item.id %}">Add</a> #}
                     </div>
                 </div>
-                {% endfor %}
-            </div>
+            </article>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div class="no-items">
-            <p>No menu items available at the moment.</p>
+        {% else %}
+        <div class="empty-state">
+            <p>We're updating our menu — please check back soon.</p>
         </div>
-        {% endfor %}
-    </div>
-    
-    {% include 'footer.html' %}
-</body>
-</html>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
