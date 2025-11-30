@@ -5,9 +5,23 @@ from django.dispatch import receiver
 from django.core.validators import RegexValidator, MinValueValidator
 from django.utils import timezone
 import os
-from django.utils import timezone
 
 
+# -------------------------
+# Helper for menu images
+# -------------------------
+def menu_item_image_path(instance, filename):
+    """Generate file path for menu item image"""
+    ext = filename.split('.')[-1]
+    filename_safe = instance.name.replace(' ', '_').lower()
+    timestamp = timezone.now().strftime('%Y%m%d_%H%M%S')
+    filename = f"{filename_safe}_{timestamp}.{ext}"
+    return os.path.join('menu_items', filename)
+
+
+# -------------------------
+# Restaurant & config
+# -------------------------
 class Restaurant(models.Model):
     name = models.CharField(max_length=100, default="Our Restaurant")
     description = models.TextField(default="Welcome to our restaurant!")
@@ -21,6 +35,70 @@ class Restaurant(models.Model):
     def __str__(self):
         return self.name
 
+
+class RestaurantConfig(models.Model):
+    name = models.CharField(max_length=100, default="Gourmet Delight")
+    tagline = models.CharField(max_length=200, default="Exquisite Dining Experience")
+    logo = models.ImageField(upload_to='restaurant/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Restaurant Configuration"
+        verbose_name_plural = "Restaurant Configuration"
+
+    def __str__(self):
+        return self.name
+
+
+# -------------------------
+# Location & contact
+# -------------------------
+class RestaurantLocation(models.Model):
+    address = models.TextField()
+    phone = models.CharField(max_length=20)
+    email = models.EmailField()
+    google_maps_embed_url = models.URLField(blank=True, null=True)
+    hours_of_operation = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Restaurant Location"
+        verbose_name_plural = "Restaurant Location"
+
+    def __str__(self):
+        return "Restaurant Location Configuration"
+
+    def save(self, *args, **kwargs):
+        # Allow only one instance; update existing if any
+        if not self.pk and RestaurantLocation.objects.exists():
+            existing = RestaurantLocation.objects.first()
+            existing.address = self.address
+            existing.phone = self.phone
+            existing.email = self.email
+            existing.google_maps_embed_url = self.google_maps_embed_url
+            existing.hours_of_operation = self.hours_of_operation
+            existing.save()
+            return existing
+        return super().save(*args, **kwargs)
+
+
+class ContactSubmission(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField(blank=True, null=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    is_reviewed = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-submitted_at']
+        verbose_name = 'Contact Submission'
+        verbose_name_plural = 'Contact Submissions'
+
+    def __str__(self):
+        return f"Contact from {self.name} ({self.submitted_at.strftime('%Y-%m-%d')})"
+
+
+# -------------------------
+# Feedback
+# -------------------------
 class Feedback(models.Model):
     RATING_CHOICES = [
         (1, '⭐ - Poor'),
@@ -29,7 +107,7 @@ class Feedback(models.Model):
         (4, '⭐⭐⭐⭐ - Very Good'),
         (5, '⭐⭐⭐⭐⭐ - Excellent'),
     ]
-    
+
     name = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     rating = models.IntegerField(choices=RATING_CHOICES, blank=True, null=True)
@@ -45,20 +123,26 @@ class Feedback(models.Model):
     def __str__(self):
         return f"Feedback from {self.name or 'Anonymous'} - {self.created_at.strftime('%Y-%m-%d')}"
 
+
+# -------------------------
+# MenuItem (single canonical definition)
+# -------------------------
 class MenuItem(models.Model):
     CATEGORY_CHOICES = [
         ('appetizer', 'Appetizer'),
         ('main', 'Main Course'),
         ('dessert', 'Dessert'),
         ('beverage', 'Beverage'),
+        ('side', 'Side Dish'),
     ]
-    
+
     name = models.CharField(max_length=100)
-    description = models.TextField()
-    price = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(0.01)])
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    description = models.TextField(blank=True, null=True)
+    price = models.DecimalField(max_digits=8, decimal_places=2, validators=[MinValueValidator(0.01)])
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='main')
     is_vegetarian = models.BooleanField(default=False)
     is_available = models.BooleanField(default=True)
+    image = models.ImageField(upload_to=menu_item_image_path, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -68,8 +152,12 @@ class MenuItem(models.Model):
         verbose_name_plural = 'Menu Items'
 
     def __str__(self):
-        return f"{self.name} (${self.price})"
+        return f"{self.name} - ${self.price}"
 
+
+# -------------------------
+# Orders & OrderItems
+# -------------------------
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -79,49 +167,24 @@ class Order(models.Model):
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
     ]
-    
+
     PAYMENT_CHOICES = [
         ('cash', 'Cash'),
         ('card', 'Credit/Debit Card'),
         ('digital', 'Digital Payment'),
     ]
-    
-    customer = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='orders'
-    )
-    
+
+    customer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     guest_name = models.CharField(max_length=100, blank=True)
     guest_phone = models.CharField(max_length=20, blank=True)
     guest_email = models.EmailField(blank=True)
-    
-    total_amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        validators=[MinValueValidator(0.01)]
-    )
-    
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='pending'
-    )
-    
-    payment_method = models.CharField(
-        max_length=20,
-        choices=PAYMENT_CHOICES,
-        default='cash'
-    )
-    
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)])
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='cash')
     payment_status = models.BooleanField(default=False)
-    
     delivery_address = models.TextField(blank=True)
     delivery_notes = models.TextField(blank=True)
     special_instructions = models.TextField(blank=True)
-    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -137,38 +200,20 @@ class Order(models.Model):
     def __str__(self):
         if self.customer:
             return f"Order #{self.id} - {self.customer.username}"
-        else:
-            return f"Order #{self.id} - {self.guest_name or 'Guest'}"
+        return f"Order #{self.id} - {self.guest_name or 'Guest'}"
 
     def save(self, *args, **kwargs):
-        if not self.total_amount and self.id:
+        # Compute total_amount if not set and order has items
+        if (not self.total_amount or self.total_amount == 0) and hasattr(self, 'items'):
             self.total_amount = sum(item.subtotal for item in self.items.all())
         super().save(*args, **kwargs)
 
+
 class OrderItem(models.Model):
-    order = models.ForeignKey(
-        Order,
-        on_delete=models.CASCADE,
-        related_name='items'
-    )
-    
-    menu_item = models.ForeignKey(
-        MenuItem,
-        on_delete=models.PROTECT,
-        related_name='order_items'
-    )
-    
-    quantity = models.PositiveIntegerField(
-        default=1,
-        validators=[MinValueValidator(1)]
-    )
-    
-    unit_price = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
-        validators=[MinValueValidator(0.01)]
-    )
-    
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    menu_item = models.ForeignKey(MenuItem, on_delete=models.PROTECT, related_name='order_items')
+    quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
+    unit_price = models.DecimalField(max_digits=8, decimal_places=2, validators=[MinValueValidator(0.01)])
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -184,10 +229,14 @@ class OrderItem(models.Model):
         return self.quantity * self.unit_price
 
     def save(self, *args, **kwargs):
-        if not self.unit_price and self.menu_item:
+        if (not self.unit_price or self.unit_price == 0) and self.menu_item:
             self.unit_price = self.menu_item.price
         super().save(*args, **kwargs)
 
+
+# -------------------------
+# Customer / Profile
+# -------------------------
 class Customer(models.Model):
     name = models.CharField(max_length=100, blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
@@ -202,55 +251,17 @@ class Customer(models.Model):
     def __str__(self):
         return self.name or "Guest Customer"
 
+
 class UserProfile(models.Model):
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name='profile'
-    )
-    
-    phone_regex = RegexValidator(
-        regex=r'^\+?1?\d{9,15}$',
-        message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."
-    )
-    
-    phone_number = models.CharField(
-        validators=[phone_regex],
-        max_length=17,
-        blank=True,
-        null=True,
-        help_text="Format: +999999999 (up to 15 digits)"
-    )
-    
-    date_of_birth = models.DateField(
-        blank=True,
-        null=True,
-        help_text="Format: YYYY-MM-DD"
-    )
-    
-    address = models.TextField(
-        blank=True,
-        null=True,
-        help_text="Full postal address"
-    )
-    
-    profile_picture = models.ImageField(
-        upload_to='profile_pictures/',
-        blank=True,
-        null=True,
-        help_text="Upload a profile picture"
-    )
-    
-    email_verified = models.BooleanField(
-        default=False,
-        help_text="Has the user verified their email address?"
-    )
-    
-    phone_verified = models.BooleanField(
-        default=False,
-        help_text="Has the user verified their phone number?"
-    )
-    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$',
+                                 message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    phone_number = models.CharField(validators=[phone_regex], max_length=17, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    email_verified = models.BooleanField(default=False)
+    phone_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -275,10 +286,12 @@ class UserProfile(models.Model):
             )
         return None
 
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
+
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
@@ -287,221 +300,16 @@ def save_user_profile(sender, instance, **kwargs):
     except UserProfile.DoesNotExist:
         UserProfile.objects.create(user=instance)
 
-# name display
-class RestaurantConfig(models.Model):
-    name = models.CharField(max_length=100, default="Gourmet Delight")
-    tagline = models.CharField(max_length=200, default="Exquisite Dining Experience")
-    logo = models.ImageField(upload_to='restaurant/', blank=True, null=True)
-    
-    class Meta:
-        verbose_name = "Restaurant Configuration"
-        verbose_name_plural = "Restaurant Configuration"
-    
-    def __str__(self):
-        return self.name
 
-# Menu Items
-class MenuItem(models.Model):
-    CATEGORY_CHOICES = [
-        ('appetizer', 'Appetizer'),
-        ('main', 'Main Course'),
-        ('dessert', 'Dessert'),
-        ('beverage', 'Beverage'),
-    ]
-    
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-    price = models.DecimalField(max_digits=6, decimal_places=2)
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
-    is_vegetarian = models.BooleanField(default=False)
-    is_available = models.BooleanField(default=True)
-    image = models.ImageField(upload_to='menu_items/', blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['category', 'name']
-        verbose_name = 'Menu Item'
-        verbose_name_plural = 'Menu Items'
-
-    def __str__(self):
-        return f"{self.name} (${self.price})"
-
-# Menu items
-class MenuItem(models.Model):
-    # Basic information
-    name = models.CharField(
-        max_length=100,
-        help_text="Name of the menu item (e.g., Margherita Pizza)"
-    )
-    
-    description = models.TextField(
-        blank=True,
-        null=True,
-        help_text="Description of the menu item"
-    )
-    
-    price = models.DecimalField(
-        max_digits=6,
-        decimal_places=2,
-        help_text="Price of the item in decimal format (e.g., 12.99)"
-    )
-    
-    # Category field to organize menu items
-    CATEGORY_CHOICES = [
-        ('appetizer', 'Appetizer'),
-        ('main', 'Main Course'),
-        ('dessert', 'Dessert'),
-        ('beverage', 'Beverage'),
-        ('side', 'Side Dish'),
-    ]
-    
-    category = models.CharField(
-        max_length=20,
-        choices=CATEGORY_CHOICES,
-        default='main',
-        help_text="Category of the menu item"
-    )
-    
-    # Status fields
-    is_vegetarian = models.BooleanField(
-        default=False,
-        help_text="Is this item vegetarian?"
-    )
-    
-    is_available = models.BooleanField(
-        default=True,
-        help_text="Is this item currently available?"
-    )
-    
-    # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['category', 'name']
-        verbose_name = 'Menu Item'
-        verbose_name_plural = 'Menu Items'
-
-    def __str__(self):
-        return f"{self.name} - ${self.price}"
-
-# For Location
-from django.db import models
-
-class RestaurantLocation(models.Model):
-    address = models.TextField()
-    phone = models.CharField(max_length=20)
-    email = models.EmailField()
-    google_maps_embed_url = models.URLField(blank=True, null=True)
-    hours_of_operation = models.TextField(blank=True, null=True)
-    
-    class Meta:
-        verbose_name = "Restaurant Location"
-        verbose_name_plural = "Restaurant Location"
-    
-    def __str__(self):
-        return "Restaurant Location Configuration"
-    
-    def save(self, *args, **kwargs):
-        # Ensure only one instance exists
-        if not self.pk and RestaurantLocation.objects.exists():
-            # Update the existing instance instead of creating a new one
-            existing = RestaurantLocation.objects.first()
-            existing.address = self.address
-            existing.phone = self.phone
-            existing.email = self.email
-            existing.google_maps_embed_url = self.google_maps_embed_url
-            existing.hours_of_operation = self.hours_of_operation
-            return existing.save(*args, **kwargs)
-        return super().save(*args, **kwargs)
-
-# Contact Submission
-class ContactSubmission(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField()
-    message = models.TextField(blank=True, null=True)
-    submitted_at = models.DateTimeField(auto_now_add=True)
-    is_reviewed = models.BooleanField(default=False)
-    
-    class Meta:
-        ordering = ['-submitted_at']
-        verbose_name = 'Contact Submission'
-        verbose_name_plural = 'Contact Submissions'
-    
-    def __str__(self):
-        return f"Contact from {self.name} ({self.submitted_at.strftime('%Y-%m-%d')})"
-
-# imsges
-def menu_item_image_path(instance, filename):
-    """Generate file path for new menu item image"""
-    # Get file extension
-    ext = filename.split('.')[-1]
-    # Create filename: menu_items/item_name_timestamp.ext
-    filename = f"{instance.name.replace(' ', '_').lower()}_{timezone.now().strftime('%Y%m%d_%H%M%S')}.{ext}"
-    # Return complete path
-    return os.path.join('menu_items', filename)
-
-class MenuItem(models.Model):
-    CATEGORY_CHOICES = [
-        ('appetizer', 'Appetizer'),
-        ('main', 'Main Course'),
-        ('dessert', 'Dessert'),
-        ('beverage', 'Beverage'),
-        ('side', 'Side Dish'),
-    ]
-    
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-    price = models.DecimalField(max_digits=6, decimal_places=2)
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
-    is_vegetarian = models.BooleanField(default=False)
-    is_available = models.BooleanField(default=True)
-    
-    # Add image field
-    image = models.ImageField(
-        upload_to=menu_item_image_path,
-        blank=True,
-        null=True,
-        help_text="Upload an image for this menu item"
-    )
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['category', 'name']
-        verbose_name = 'Menu Item'
-        verbose_name_plural = 'Menu Items'
-
-    def __str__(self):
-        return f"{self.name} (${self.price})"
-    
-    def save(self, *args, **kwargs):
-        # Delete old image if updating and image has changed
-        if self.pk:
-            try:
-                old_item = MenuItem.objects.get(pk=self.pk)
-                if old_item.image and old_item.image != self.image:
-                    old_item.image.delete(save=False)
-            except MenuItem.DoesNotExist:
-                pass
-        super().save(*args, **kwargs)
-    
-    def delete(self, *args, **kwargs):
-        # Delete associated image when menu item is deleted
-        if self.image:
-            self.image.delete(save=False)
-        super().delete(*args, **kwargs)
-
-# about us
+# -------------------------
+# About content
+# -------------------------
 class AboutContent(models.Model):
     title = models.CharField(max_length=200, default="About Our Restaurant")
     mission = models.TextField(help_text="Restaurant's mission statement")
     history = models.TextField(help_text="Brief history of the restaurant")
     image = models.ImageField(upload_to='about/', blank=True, null=True)
     is_active = models.BooleanField(default=True)
-    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
