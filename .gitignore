@@ -1,0 +1,12 @@
+﻿__pycache__/
+*.pyc
+.env
+db.sqlite3
+/media/
+staticfiles/
+.vscode/
+.idea/
+venv/
+ENV/
+env/
+*.egg-info/
