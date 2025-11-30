@@ -1,109 +1,72 @@
-from django.contrib import admin
-
-# Register your models here.
-from .models import Restaurant
-
-# Feedback import
-from .models import Feedback
-
-# Menu items
-from .models import MenuItem, Order, OrderItem
-
-admin.site.register(Restaurant)
-
-@admin.register(Restaurant)
-class RestaurantAdmin(admin.ModelAdmin):
-    list_display = ('name', 'opening_time', 'closing_time')
-    fields = ('name', 'description', 'logo', 'opening_time', 'closing_time')
-    fieldsets = (
-        ('Basic Info', {
-            'fields': ('name', 'description', 'logo')
-        }),
-        ('About Page', {
-            'fields': ('about_us', 'image')
-        }),
-        ('Hours', {
-            'fields': ('opening_time', 'closing_time')
-        }),
-    )
-
- @admin.register(Feedback)
-class FeedbackAdmin(admin.ModelAdmin):
-list_display = ['name', 'rating', 'created_at', 'is_approved']
-list_filter = ['rating', 'is_approved', 'created_at']
-search_fields = ['name', 'email', 'comments']
-
-# Menu items model
-class MenuItemAdmin(admin.ModelAdmin):
-list_display = ['name', 'category', 'price', 'is_available', 'is_vegetarian']
-list_filter = ['category', 'is_available', 'is_vegetarian']
-search_fields = ['name', 'description']
-list_editable = ['price', 'is_available']
-ordering = ['category', 'name']
-fieldsets = (
-    ('Basic Information', {
-        'fields': ('name', 'description', 'category')
-    }),
-    ('Pricing & Availability', {
-        'fields': ('price', 'is_available', 'is_vegetarian')
-    }),
+from rest_framework import serializers
+from .models import (
+    Restaurant,
+    RestaurantConfig,
+    RestaurantLocation,
+    Feedback,
+    MenuItem,
+    Order,
+    OrderItem,
+    ContactSubmission,
+    UserProfile,
 )
 
-class OrderItemInline(admin.TabularInline):
-model = OrderItem
-extra = 1
-readonly_fields = ['price']
-                                                                                                                                                                                                                    
-def get_formset(self, request, obj=None, **kwargs):
-    formset = super().get_formset(request, obj, **kwargs)
-    # Optional: Add custom formset logic here
-    return formset
 
-class OrderAdmin(admin.ModelAdmin):
-list_display = ['id', 'customer_name', 'customer_phone', 'total_amount', 'status', 'created_at']
-list_filter = ['status', 'created_at']
-search_fields = ['customer_name', 'customer_phone', 'customer_email']
-readonly_fields = ['created_at', 'updated_at', 'total_amount']
-inlines = [OrderItemInline]
-fieldsets = (
-    ('Customer Information', {
-        'fields': ('customer_name', 'customer_phone', 'customer_email')
-    }),
-    ('Order Details', {
-        'fields': ('total_amount', 'status', 'notes')
-    }),
-    ('Timestamps', {
-        'fields': ('created_at', 'updated_at'),
-        'classes': ('collapse',)
-    }),
-)
-                                                                                                                                                                                                                                                                                                                                                                                
-    def get_readonly_fields(self, request, obj=None):
-        if obj:  # Editing an existing object
-            return self.readonly_fields + ('total_amount',)
-        return self.readonly_fields
+class RestaurantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Restaurant
+        fields = "__all__"
 
-class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ['order', 'menu_item', 'quantity', 'price']
-    list_filter = ['order__status']
-    search_fields = ['order__customer_name', 'menu_item__name']
 
-    # Register models with their admin classes
-admin.site.register(MenuItem, MenuItemAdmin)
-admin.site.register(Order, OrderAdmin)
-admin.site.register(OrderItem, OrderItemAdmin)
+class RestaurantConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RestaurantConfig
+        fields = "__all__"
 
-# Admin ation after menu model
-@admin.action(description='Mark selected orders as completed')
-def mark_completed(modeladmin, request, queryset):
-queryset.update(status='completed')
 
-@admin.action(description='Toggle availability of selected menu items')
-def toggle_availability(modeladmin, request, queryset):
-    for item in queryset:
-    item.is_available = not item.is_available
-    item.save()
+class RestaurantLocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RestaurantLocation
+        fields = "__all__"
 
-# Add to admin classes
-MenuItemAdmin.actions = [toggle_availability]
-OrderAdmin.actions = [mark_completed]
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = "__all__"
+
+
+class MenuItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MenuItem
+        fields = "__all__"
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    menu_item = MenuItemSerializer(read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = ("id", "order", "menu_item", "quantity", "unit_price", "subtotal")
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(source="orderitem_set", many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = "__all__"
+
+
+class ContactSubmissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactSubmission
+        fields = "__all__"
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = UserProfile
+        fields = "__all__"

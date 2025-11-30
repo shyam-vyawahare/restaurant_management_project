@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     # Project apps
     'home',
     'account',
-    'home.products',   # ✔ Products app correctly under home/
+    'products', 
     'orders',
 ]
 
