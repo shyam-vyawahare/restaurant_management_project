@@ -18,7 +18,6 @@ def menu_item_image_path(instance, filename):
     filename = f"{filename_safe}_{timestamp}.{ext}"
     return os.path.join('menu_items', filename)
 
-
 # -------------------------
 # Restaurant & config
 # -------------------------

@@ -1,189 +1,5 @@
-{% extends 'home/base.html' %} {% load static %} {% block title %}{{ restaurant.name }}{% endblock %} {% block content %}
-<style>
-    /* Local page styles - for production move to static CSS */
-    
-     :root {
-        --accent: #d32f2f;
-        --accent-dark: #b71c1c;
-        --muted: #666;
-        --bg: #f8f9fa;
-    }
-    
-    body {
-        font-family: 'Arial', sans-serif;
-        line-height: 1.6;
-        margin: 0;
-        padding: 0;
-        background-color: var(--bg);
-        color: #333;
-    }
-    
-    nav.site-nav {
-        background: #333;
-        padding: 0.6rem 1rem;
-    }
-    
-    nav.site-nav a {
-        color: #fff;
-        text-decoration: none;
-        margin-right: 1rem;
-        font-size: 0.95rem;
-    }
-    
-    .restaurant-header {
-        text-align: center;
-        padding: 2rem 1rem;
-        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
-        color: white;
-        margin-bottom: 2rem;
-    }
-    
-    .restaurant-logo {
-        border-radius: 50%;
-        border: 3px solid var(--accent);
-        margin: 1rem 0;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-    }
-    
-    .restaurant-name {
-        font-size: 2.25rem;
-        margin: 0.25rem 0 0;
-        font-weight: 700;
-    }
-    
-    .restaurant-tagline {
-        font-size: 1.05rem;
-        margin: 0.5rem 0 0 0;
-        opacity: 0.95;
-    }
-    
-    .restaurant-description {
-        font-size: 1.05rem;
-        color: var(--muted);
-        max-width: 880px;
-        margin: 0.75rem auto 1.25rem;
-    }
-    
-    .hours {
-        background-color: #fff2f2;
-        display: inline-block;
-        padding: .5rem .75rem;
-        border-radius: 6px;
-        color: #3b1a1a;
-        font-weight: 600;
-        margin-top: .75rem;
-    }
-    
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 1rem;
-    }
-    
-    .location-section,
-    .contact-section {
-        padding: 2.5rem 0;
-    }
-    
-    .location-content {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-        margin-top: 1rem;
-    }
-    
-    .address-info h3 {
-        color: var(--accent);
-        margin-bottom: 1rem;
-    }
-    
-    .hours-of-operation {
-        background: white;
-        padding: 1rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
-    
-    .map-container {
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-    }
-    
-    .contact-form {
-        max-width: 700px;
-        margin: 0 auto;
-        background: white;
-        padding: 1.75rem;
-        border-radius: 8px;
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
-    }
-    
-    .form-group {
-        margin-bottom: 1rem;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: .4rem;
-        font-weight: 600;
-        color: #333;
-    }
-    
-    .form-input,
-    .form-textarea {
-        width: 100%;
-        padding: .7rem;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        box-sizing: border-box;
-    }
-    
-    .form-input:focus,
-    .form-textarea:focus {
-        outline: none;
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.12);
-    }
-    
-    .submit-btn {
-        background: var(--accent);
-        color: #fff;
-        padding: .7rem 1.15rem;
-        border-radius: 6px;
-        border: 0;
-        font-weight: 700;
-        cursor: pointer;
-    }
-    
-    .alert {
-        padding: .9rem;
-        border-radius: 6px;
-        margin-bottom: 1rem;
-    }
-    
-    .alert-success {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-    
-    .alert-error {
-        background: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-    
-    @media (max-width:768px) {
-        .location-content {
-            grid-template-columns: 1fr;
-        }
-        .restaurant-name {
-            font-size: 1.6rem;
-        }
-    }
-</style>
-
+{% extends 'home/base.html' %} {% load static %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'home/home.css' %}"> {% endblock %} {% block title %}{{ restaurant.name }}{% endblock %} {% block content %}
 <nav class="site-nav" role="navigation" aria-label="Main">
     <a href="{% url 'home' %}">Home</a>
     <a href="{% url 'menu' %}">Menu</a>
@@ -218,13 +34,14 @@
 
                 <div class="contact-details" aria-label="Contact details">
                     {% if restaurant.phone %}
-                    <p><strong>Phone:</strong> {{ restaurant.phone }}</p>{% endif %} {% if restaurant.email %}
-                    <p><strong>Email:</strong> <a href="mailto:{{ restaurant.email }}">{{ restaurant.email }}</a></p>{% endif %}
+                    <p><strong>Phone:</strong> {{ restaurant.phone }}</p>
+                    {% endif %} {% if restaurant.email %}
+                    <p><strong>Email:</strong> <a href="mailto:{{ restaurant.email }}">{{ restaurant.email }}</a></p>
+                    {% endif %}
                 </div>
 
                 <div class="hours-of-operation" aria-labelledby="hours-heading">
                     <h4 id="hours-heading">Hours</h4>
-                    {# If you want dynamic hours, replace these static lines with your model data #}
                     <p>Monday - Friday: 11:00 AM - 9:00 PM</p>
                     <p>Saturday - Sunday: 10:00 AM - 10:00 PM</p>
                 </div>
@@ -263,20 +80,17 @@
 
             <div class="form-group">
                 <label for="{{ form.name.id_for_label }}">Name *</label> {{ form.name }} {% if form.name.errors %}
-                <div class="error">{{ form.name.errors.as_text|linebreaksbr }}</div>
-                {% endif %}
+                <div class="error">{{ form.name.errors.as_text|linebreaksbr }}</div>{% endif %}
             </div>
 
             <div class="form-group">
                 <label for="{{ form.email.id_for_label }}">Email *</label> {{ form.email }} {% if form.email.errors %}
-                <div class="error">{{ form.email.errors.as_text|linebreaksbr }}</div>
-                {% endif %}
+                <div class="error">{{ form.email.errors.as_text|linebreaksbr }}</div>{% endif %}
             </div>
 
             <div class="form-group">
                 <label for="{{ form.message.id_for_label }}">Message</label> {{ form.message }} {% if form.message.errors %}
-                <div class="error">{{ form.message.errors.as_text|linebreaksbr }}</div>
-                {% endif %}
+                <div class="error">{{ form.message.errors.as_text|linebreaksbr }}</div>{% endif %}
             </div>
 
             <button type="submit" name="contact_submit" class="submit-btn">Send Message</button>

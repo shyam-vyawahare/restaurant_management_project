@@ -1,73 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>About {{ restaurant.name }}</title>
-    <!-- Inernal CSS -->
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        .about-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .about-content {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-        .about-text {
-            flex: 1;
-        }
-        .about-image {
-            flex: 1;
-            border-radius: 8px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-        }
-        nav {
-            background: #333;
-            padding: 1rem;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin-right: 1rem;
-        }
-    </style>
-</head>
-<body>
-    <nav>
-        <a href="/">Home</a>
-        <a href="/about">About</a>
-    </nav>
-    
-    <div class="container">
-        <div class="about-header">
-            <h1>About {{ restaurant.name }}</h1>
-        </div>
-        
-        <div class="about-content">
-            <div class="about-text">
-                <h2>Our Story</h2>
-                <p>{{ restaurant.about_us|default:"We are a family-owned restaurant dedicated to serving authentic cuisine with fresh, locally-sourced ingredients." }}</p>
-                
-                <h2>Our Mission</h2>
-                <p>To provide exceptional dining experiences through quality food and warm hospitality.</p>
-            </div>
-            
-            {% if restaurant.image %}
-            <img src="{{ restaurant.image.url }}" alt="Our Restaurant" class="about-image" width="400">
-            {% endif %}
-        </div>
+{% extends 'home/base.html' %} {% load static %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'home/about.css' %}"> {% endblock %} {% block title %}About {{ restaurant.name }}{% endblock %} {% block content %}
+<nav>
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'about' %}">About</a>
+</nav>
+
+<div class="container">
+    <div class="about-header">
+        <h1>About {{ restaurant.name }}</h1>
     </div>
-</body>
-</html>
+
+    <div class="about-content">
+        <div class="about-text">
+            <h2>Our Story</h2>
+            <p>{{ restaurant.about_us|default:"We are a family-owned restaurant dedicated to serving authentic cuisine with fresh, locally-sourced ingredients." }}</p>
+
+            <h2>Our Mission</h2>
+            <p>To provide exceptional dining experiences through quality food and warm hospitality.</p>
+        </div>
+
+        {% if restaurant.image %}
+        <img src="{{ restaurant.image.url }}" alt="Our Restaurant" class="about-image"> {% endif %}
+    </div>
+</div>
+{% endblock %}

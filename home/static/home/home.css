@@ -1,0 +1,224 @@
+:root {
+    --accent: #d32f2f;
+    --accent-dark: #b71c1c;
+    --muted: #666;
+    --bg: #f8f9fa;
+}
+
+
+/* Page base */
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg);
+    color: #333;
+}
+
+
+/* nav */
+
+nav.site-nav,
+nav {
+    background: #333;
+    padding: 0.6rem 1rem;
+    text-align: center;
+}
+
+nav.site-nav a,
+nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-right: 1rem;
+    font-size: 0.95rem;
+}
+
+nav a:hover {
+    color: #ff9e9e;
+}
+
+
+/* header */
+
+.restaurant-header {
+    text-align: center;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: #fff;
+    margin-bottom: 2rem;
+}
+
+.restaurant-logo {
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    margin: 1rem 0;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.restaurant-name {
+    font-size: 2.25rem;
+    margin: 0.25rem 0 0;
+    font-weight: 700;
+}
+
+.restaurant-tagline {
+    font-size: 1.05rem;
+    margin: 0.5rem 0 0 0;
+    opacity: 0.95;
+}
+
+.restaurant-description {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 880px;
+    margin: 0.75rem auto 1.25rem;
+}
+
+.hours {
+    background-color: #fff2f2;
+    display: inline-block;
+    padding: .5rem .75rem;
+    border-radius: 6px;
+    color: #3b1a1a;
+    font-weight: 600;
+    margin-top: .75rem;
+}
+
+
+/* container */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+
+/* location & contact */
+
+.location-section,
+.contact-section {
+    padding: 2.5rem 0;
+}
+
+.location-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.address-info h3 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+}
+
+.hours-of-operation {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.map-container {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+
+/* contact form */
+
+.contact-form {
+    max-width: 700px;
+    margin: 0 auto;
+    background: white;
+    padding: 1.75rem;
+    border-radius: 8px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: .4rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-input,
+.form-textarea,
+input,
+textarea,
+select {
+    width: 100%;
+    padding: .7rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font: inherit;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.12);
+}
+
+.submit-btn {
+    background: var(--accent);
+    color: #fff;
+    padding: .7rem 1.15rem;
+    border-radius: 6px;
+    border: 0;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+
+/* alerts */
+
+.alert {
+    padding: .9rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+
+/* utilities */
+
+.muted {
+    color: var(--muted);
+}
+
+
+/* responsive */
+
+@media (max-width:768px) {
+    .location-content {
+        grid-template-columns: 1fr;
+    }
+    .restaurant-name {
+        font-size: 1.6rem;
+    }
+}

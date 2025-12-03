@@ -1,0 +1,114 @@
+/* home/static/home/about.css */
+
+
+/* Design tokens */
+
+:root {
+    --accent: #d32f2f;
+    --muted: #666;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --container-width: 1000px;
+}
+
+
+/* Page layout */
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg);
+    color: #222;
+}
+
+nav {
+    background: #333;
+    padding: 1rem;
+    text-align: center;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 .6rem;
+    font-weight: 600;
+}
+
+nav a:hover {
+    color: var(--accent);
+}
+
+
+/* Container */
+
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+
+/* Header */
+
+.about-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.about-header h1 {
+    font-size: 2rem;
+    margin: 0;
+    color: var(--accent);
+}
+
+
+/* Content */
+
+.about-content {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 1.25rem;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.about-text {
+    flex: 1;
+}
+
+.about-text h2 {
+    margin-top: 0;
+    color: var(--accent);
+}
+
+.about-text p {
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.about-image {
+    flex: 1;
+    max-width: 400px;
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    object-fit: cover;
+}
+
+
+/* Mobile responsiveness */
+
+@media (max-width:900px) {
+    .about-content {
+        flex-direction: column;
+        text-align: left;
+    }
+    .about-image {
+        max-width: 100%;
+    }
+}
