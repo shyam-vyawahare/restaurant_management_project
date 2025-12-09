@@ -1,0 +1,52 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Our Menu - {{ restaurant.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'home/menu.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container" role="main">
+    <h1 class="page-title">Our Menu — {{ restaurant.name }}</h1>
+
+    {% if menu_by_category %}
+        {% for category, items in menu_by_category.items %}
+        <section class="menu-category" aria-labelledby="cat-{{ category }}">
+            <h2 id="cat-{{ category }}" class="category-heading">
+                {{ category|default:"Menu" | capfirst }}
+            </h2>
+
+            <div class="menu-grid" role="list">
+                {% for item in items %}
+                <article class="menu-item" role="listitem" aria-labelledby="item-{{ item.id }}-name">
+                    {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="{{ item.name }}" class="menu-item-media" loading="lazy" width="600" height="360">
+                    {% else %}
+                    <div class="no-image">No image available</div>
+                    {% endif %}
+
+                    <div class="menu-item-body">
+                        <h3 id="item-{{ item.id }}-name">{{ item.name }}</h3>
+                        <p class="description">{{ item.description|default:"Delicious item." }}</p>
+
+                        <div class="menu-item-footer">
+                            <div class="price">${{ item.price|floatformat:2 }}</div>
+                            {% if item.is_vegetarian %}
+                            <span class="vegetarian-badge" aria-hidden="true">Vegetarian</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <p>We're updating our menu — please check back soon.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

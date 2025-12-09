@@ -13,29 +13,20 @@ from .models import (
     OrderItem,
     ContactSubmission,
     UserProfile,
+    AboutContent,
 )
 
 
 # ---------- Restaurant Admin ----------
 @admin.register(Restaurant)
 class RestaurantAdmin(admin.ModelAdmin):
-    # keep only one of fields OR fieldsets — we use fieldsets here
     fieldsets = (
-        ('Basic Info', {'fields': ('name', 'description', 'logo')}),
+        ('Basic Info', {'fields': ('name', 'description', 'phone', 'logo')}),
         ('About Page', {'fields': ('about_us', 'image')}),
-        ('Hours', {'fields': ('opening_time', 'closing_time')}),
+        ('Hours', {'fields': ('hours_weekdays', 'hours_weekend')}),
     )
 
-    # defensive list_display: show only guaranteed fields
-    list_display = ('name', 'get_opening_time', 'get_closing_time')
-
-    def get_opening_time(self, obj):
-        return getattr(obj, 'opening_time', None)
-    get_opening_time.short_description = 'Opening Time'
-
-    def get_closing_time(self, obj):
-        return getattr(obj, 'closing_time', None)
-    get_closing_time.short_description = 'Closing Time'
+    list_display = ('name', 'hours_weekdays', 'hours_weekend')
 
 # ---------- Feedback ----------
 @admin.register(Feedback)
@@ -189,4 +180,19 @@ class ContactSubmissionAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Contact Information', {'fields': ('name', 'email', 'message')}),
         ('Status', {'fields': ('is_reviewed', 'submitted_at')}),
+    )
+
+
+# ---------- About Content ----------
+@admin.register(AboutContent)
+class AboutContentAdmin(admin.ModelAdmin):
+    list_display = ('title', 'is_active', 'created_at', 'updated_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('title', 'mission', 'history')
+    readonly_fields = ('created_at', 'updated_at')
+
+    fieldsets = (
+        ('Content', {'fields': ('title', 'mission', 'history', 'image')}),
+        ('Status', {'fields': ('is_active',)}),
+        ('Timestamps', {'fields': ('created_at', 'updated_at'), 'classes': ('collapse',)}),
     )

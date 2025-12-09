@@ -1,0 +1,48 @@
+{% extends 'home/base.html' %}
+
+{% load static %}
+
+{% block title %}Search Results - {{ restaurant.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'home/search.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="search-results-header">
+        <h1>Search Results</h1>
+
+        <form class="search-form" action="{% url 'search' %}" method="get">
+            <div class="search-container">
+                <input type="text" name="q" value="{{ query }}" placeholder="Search menu items..." class="search-input">
+                <button type="submit" class="search-btn">
+                    <span class="search-icon">🔍</span>
+                    Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="search-results">
+        {% if query %}
+        <p class="search-info">Showing results for: <strong>"{{ query }}"</strong></p>
+
+        {% if results %}
+        <div class="results-grid">
+            <p class="coming-soon">Search functionality coming soon!</p>
+        </div>
+        {% else %}
+        <div class="no-results">
+            <p>No results found for "{{ query }}".</p>
+            <p>Try searching for different menu items.</p>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="no-query">
+            <p>Please enter a search term to find menu items.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

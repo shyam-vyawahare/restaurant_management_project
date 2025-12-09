@@ -5,21 +5,32 @@ from django.dispatch import receiver
 from django.core.validators import RegexValidator, MinValueValidator
 from django.utils import timezone
 import os
+import re
 
 
 # -------------------------
-# Helper for menu images
+# Helpers
 # -------------------------
+def _slugify_filename(name: str) -> str:
+    name = re.sub(r'\s+', '_', name.strip().lower())
+    name = re.sub(r'[^\w\-_.]', '', name)
+    return name
+
+
 def menu_item_image_path(instance, filename):
-    """Generate file path for menu item image"""
+    """
+    Generate a safe, unique path for uploaded menu item images:
+    menu_items/<slugified-name>_<YYYYmmdd_HHMMSS>.<ext>
+    """
     ext = filename.split('.')[-1]
-    filename_safe = instance.name.replace(' ', '_').lower()
+    safe_name = _slugify_filename(getattr(instance, "name", "item"))
     timestamp = timezone.now().strftime('%Y%m%d_%H%M%S')
-    filename = f"{filename_safe}_{timestamp}.{ext}"
-    return os.path.join('menu_items', filename)
+    new_filename = f"{safe_name}_{timestamp}.{ext}"
+    return os.path.join('menu_items', new_filename)
+
 
 # -------------------------
-# Restaurant & config
+# Restaurant & configuration
 # -------------------------
 class Restaurant(models.Model):
     name = models.CharField(max_length=100, default="Our Restaurant")
@@ -66,7 +77,10 @@ class RestaurantLocation(models.Model):
         return "Restaurant Location Configuration"
 
     def save(self, *args, **kwargs):
-        # Allow only one instance; update existing if any
+        """
+        Ensure only one RestaurantLocation instance exists.
+        If another exists, update it instead of creating a new one.
+        """
         if not self.pk and RestaurantLocation.objects.exists():
             existing = RestaurantLocation.objects.first()
             existing.address = self.address
@@ -124,7 +138,7 @@ class Feedback(models.Model):
 
 
 # -------------------------
-# MenuItem (single canonical definition)
+# MenuItem (canonical)
 # -------------------------
 class MenuItem(models.Model):
     CATEGORY_CHOICES = [
@@ -177,7 +191,7 @@ class Order(models.Model):
     guest_name = models.CharField(max_length=100, blank=True)
     guest_phone = models.CharField(max_length=20, blank=True)
     guest_email = models.EmailField(blank=True)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)])
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.00)], default=0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='cash')
     payment_status = models.BooleanField(default=False)
@@ -201,10 +215,22 @@ class Order(models.Model):
             return f"Order #{self.id} - {self.customer.username}"
         return f"Order #{self.id} - {self.guest_name or 'Guest'}"
 
+    def recalc_total(self):
+        """Recalculate total_amount from related OrderItems (safe call)."""
+        total = 0
+        if hasattr(self, 'items'):
+            total = sum(getattr(item, 'subtotal', 0) for item in self.items.all())
+        return total
+
     def save(self, *args, **kwargs):
-        # Compute total_amount if not set and order has items
-        if (not self.total_amount or self.total_amount == 0) and hasattr(self, 'items'):
-            self.total_amount = sum(item.subtotal for item in self.items.all())
+        # Ensure total is consistent with items if items exist
+        try:
+            total = self.recalc_total()
+            if total:
+                self.total_amount = total
+        except Exception:
+            # silently fallback; avoid crashing on save if items relation not ready
+            pass
         super().save(*args, **kwargs)
 
 
@@ -225,11 +251,11 @@ class OrderItem(models.Model):
 
     @property
     def subtotal(self):
-        return self.quantity * self.unit_price
+        return (self.unit_price or 0) * (self.quantity or 0)
 
     def save(self, *args, **kwargs):
         if (not self.unit_price or self.unit_price == 0) and self.menu_item:
-            self.unit_price = self.menu_item.price
+            self.unit_price = getattr(self.menu_item, 'price', 0)
         super().save(*args, **kwargs)
 
 
@@ -288,14 +314,17 @@ class UserProfile(models.Model):
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
+    """Create a profile on user creation (idempotent)."""
     if created:
-        UserProfile.objects.create(user=instance)
+        UserProfile.objects.get_or_create(user=instance)
 
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
+    """Ensure profile is saved after user save; if missing, create it."""
     try:
-        instance.profile.save()
+        profile = instance.profile
+        profile.save()
     except UserProfile.DoesNotExist:
         UserProfile.objects.create(user=instance)
 

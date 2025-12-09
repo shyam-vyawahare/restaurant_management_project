@@ -1,0 +1,38 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Reservations - {{ restaurant.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'home/reservations.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>Make a Reservation</h1>
+        <p>Book your table at {{ restaurant.name }}</p>
+    </div>
+
+    <div class="reservation-placeholder">
+        <div class="placeholder-icon">📅</div>
+        <h2>Reservation System Coming Soon</h2>
+        <p>We're currently working on our online reservation system.</p>
+        <p>In the meantime, please call us at <strong>{{ restaurant.phone }}</strong> to make a reservation.</p>
+        
+        <div class="contact-alternatives">
+            <p>Or reach us at:</p>
+            <p>📧 {{ restaurant.email|default:"contact@restaurant.com" }}</p>
+        </div>
+    </div>
+
+    <div class="reservation-info">
+        <h3>Hours of Operation</h3>
+        <ul>
+            <li>Monday - Thursday: 11:00 AM - 10:00 PM</li>
+            <li>Friday - Saturday: 11:00 AM - 11:00 PM</li>
+            <li>Sunday: 12:00 PM - 9:00 PM</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

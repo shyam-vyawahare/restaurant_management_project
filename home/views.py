@@ -1,309 +1,194 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
-from django.http import JsonResponse
 from django.contrib import messages
+from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 import logging
-from .models import Restaurant, Feedback, RestaurantConfig
-from .forms import FeedbackForm
+from .models import (
+    Restaurant, Feedback, RestaurantConfig, MenuItem,
+    RestaurantLocation, ContactSubmission, AboutContent
+)
+from .forms import FeedbackForm, ContactForm
 from .serializers import MenuItemSerializer
-from .models import MenuItem
-from .models import RestaurantLocation
-from .forms import ContactForm
-from .models import ContactSubmission
-from .models import AboutContent
+from django.utils import timezone
 
-# Set up logging
 logger = logging.getLogger(__name__)
+
+
+def _get_restaurant_instance():
+    """Return the main Restaurant instance (create default if missing)."""
+    try:
+        restaurant = Restaurant.objects.first()
+        if not restaurant:
+            restaurant = Restaurant.objects.create(
+                name=getattr(settings, "RESTAURANT_NAME", "Gourmet Delight"),
+                description=getattr(settings, "RESTAURANT_DESCRIPTION", "Welcome to our restaurant!"),
+                phone=getattr(settings, "RESTAURANT_PHONE", "+1 (555) 123-4567"),
+            )
+        return restaurant
+    except Exception as e:
+        logger.exception("Failed to get/create Restaurant instance: %s", e)
+        return None
+
+
+def _base_context():
+    """Common context used by several templates."""
+    restaurant = _get_restaurant_instance()
+    restaurant_config = RestaurantConfig.objects.first()
+    restaurant_location = RestaurantLocation.objects.first()
+    return {
+        "restaurant": restaurant,
+        "restaurant_config": restaurant_config,
+        "restaurant_location": restaurant_location,
+        "opening_hours": {
+            "weekdays": getattr(settings, "RESTAURANT_HOURS", {}).get("weekdays", "Mon - Fri: 11:00 AM - 9:00 PM"),
+            "weekend": getattr(settings, "RESTAURANT_HOURS", {}).get("weekend", "Sat - Sun: 10:00 AM - 10:00 PM"),
+        },
+        "current_year": timezone.now().year,
+    }
 
 
 def home_view(request):
     """
-    Home page view that ensures there is always a restaurant instance with id=1.
-    If not found, creates one with default values.
+    Home page. Handles optional contact form POST and renders the home template.
     """
-    default_phone = getattr(settings, 'RESTAURANT_PHONE', '+1 (555) 123-4567')
-    restaurant_name = getattr(settings, 'RESTAURANT_NAME', 'Tasty Bites')
-    restaurant_description = getattr(settings, 'RESTAURANT_DESCRIPTION', 'Welcome to our restaurant!')
+    context = _base_context()
 
-    # Try to get restaurant config from database
-    try:
-        restaurant_config = RestaurantConfig.objects.first()
-        if not restaurant_config:
-            restaurant_config = RestaurantConfig.objects.create()
-    except Exception as e:
-        logger.error(f"Error accessing RestaurantConfig: {e}")
-        restaurant_config = None
-    
-    # Get or create the main restaurant instance
-    restaurant, created = Restaurant.objects.get_or_create(
-        id=1,
-        defaults={
-            'name': restaurant_name,
-            'description': restaurant_description,
-            'phone': default_phone
-        }
-    )
-    
-    context = {
-        'restaurant': restaurant,
-        'default_phone': default_phone,
-        'restaurant_config': restaurant_config,
-        'restaurant_name': restaurant_config.name if restaurant_config else restaurant_name,
-        'restaurant_tagline': restaurant_config.tagline if restaurant_config else getattr(settings, 'RESTAURANT_TAGLINE', 'Exquisite Dining Experience'),
-    }
-    return render(request, 'home/home.html', context)
+    # Contact form handling
+    if request.method == "POST" and "contact_submit" in request.POST:
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Thank you for your message! We will get back to you soon.")
+            return redirect("home")
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = ContactForm()
+
+    context.update({
+        "form": form,
+    })
+    return render(request, "home/home.html", context)
+
+
+def contact_view(request):
+    """
+    Dedicated contact page using the same ContactForm logic as the homepage.
+    """
+    context = _base_context()
+    form = ContactForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Thank you for your message! We will get back to you soon.")
+        return redirect("contact")
+    elif request.method == "POST":
+        messages.error(request, "Please correct the errors below.")
+
+    context.update({"form": form})
+    return render(request, "home/contact.html", context)
 
 
 def about_view(request):
-    """About page view"""
-    restaurant = Restaurant.objects.first()
-    return render(request, 'about.html', {'restaurant': restaurant})
+    """
+    About page: use active AboutContent if present, otherwise fall back to a default.
+    """
+    about = AboutContent.objects.filter(is_active=True).first()
+    if not about:
+        # Keep a safe fallback instance (don't crash if DB missing)
+        about = AboutContent(
+            title="About Gourmet Delight",
+            mission="To provide exceptional dining experiences through authentic cuisine and warm hospitality.",
+            history="Founded in 2010, Gourmet Delight has been serving the community with passion and dedication for over a decade."
+        )
+
+    context = _base_context()
+    context.update({
+        "about": about,
+    })
+    return render(request, "home/about.html", context)
 
 
 def custom_404(request, exception):
-    """Custom 404 error handler"""
-    return render(request, '404.html', status=404)
+    """Custom 404 handler"""
+    ctx = _base_context()
+    return render(request, "home/404.html", ctx, status=404)
 
 
 def menu_view(request):
     """
-    Displays hardcoded menu items (simulating DB data).
-    Includes error handling for testing purposes.
+    Render menu grouped by category from DB (MenuItem model).
     """
     try:
-        menu_items = [
-            {
-                'id': 1,
-                'name': 'Margherita Pizza',
-                'description': 'Classic pizza with tomato sauce, mozzarella, and basil',
-                'price': 12.99,
-                'category': 'Main'
-            },
-            {
-                'id': 2,
-                'name': 'Caesar Salad',
-                'description': 'Romaine lettuce, croutons, parmesan, and Caesar dressing',
-                'price': 8.99,
-                'category': 'Starter'
-            },
-            {
-                'id': 3,
-                'name': 'Chocolate Lava Cake',
-                'description': 'Warm chocolate cake with a molten center, served with vanilla ice cream',
-                'price': 6.99,
-                'category': 'Dessert'
-            }
-        ]
+        menu_items = MenuItem.objects.filter(is_available=True).order_by("category", "name")
+        menu_by_category = {}
+        for item in menu_items:
+            menu_by_category.setdefault(item.category, []).append(item)
 
-        # Force error simulation (for testing only)
-        if request.GET.get('force_error'):
-            raise ValueError("Forced error for testing purposes")
-
-        return render(request, 'home/menu.html', {'menu_items': menu_items})
-
-    except ValueError as ve:
-        logger.error(f"Value error in menu_view: {ve}")
-        return render(request, 'home/error.html', {
-            'error_message': 'Invalid data configuration. Please try again later.',
-            'status_code': 400
-        }, status=400)
-
+        context = _base_context()
+        context.update({
+            "menu_items": menu_items,
+            "menu_by_category": menu_by_category,
+        })
+        return render(request, "home/menu.html", context)
     except Exception as e:
-        logger.critical(f"Unexpected error in menu_view: {e}")
-        return render(request, 'home/error.html', {
-            'error_message': "Sorry, we're experiencing technical difficulties. Please try again later.",
-            'status_code': 500
+        logger.exception("Error in menu_view: %s", e)
+        return render(request, "home/error.html", {
+            "error_message": "Unable to load menu at the moment. Please try again later."
         }, status=500)
 
 
 def reservations_view(request):
-    """View for the reservations page - placeholder for future functionality"""
-    return render(request, 'home/reservations.html')
+    """Placeholder for reservations page"""
+    context = _base_context()
+    return render(request, "home/reservations.html", context)
 
 
 def feedback_view(request):
     """Feedback form view"""
-    if request.method == 'POST':
+    if request.method == "POST":
         form = FeedbackForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Thank you for your feedback!')
-            return redirect('feedback')
+            messages.success(request, "Thank you for your feedback!")
+            return redirect("feedback")
         else:
-            messages.error(request, 'Please correct the errors below.')
+            messages.error(request, "Please correct the errors below.")
     else:
         form = FeedbackForm()
-    
-    return render(request, 'home/feedback.html', {'form': form})
+
+    context = _base_context()
+    context.update({"form": form})
+    return render(request, "home/feedback.html", context)
 
 
 def search_view(request):
-    """Placeholder search view - will implement actual search logic later"""
-    query = request.GET.get('q', '').strip()
-    
-    # For now, just show the search query
-    context = {
-        'query': query,
-        'results': []  # Empty results for now
-    }
-    
-    return render(request, 'home/search.html', context)
+    """Simple search placeholder"""
+    query = request.GET.get("q", "").strip()
+    context = _base_context()
+    context.update({
+        "query": query,
+        "results": [],  # future: run a query over MenuItem, Restaurant, etc.
+    })
+    return render(request, "home/search.html", context)
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def menu_api_view(request):
     """
-    API endpoint to retrieve restaurant menu
-    Returns hardcoded menu data for now
+    API endpoint to return serialized MenuItem model instances (DB-backed).
+    Use query params ?category=&vegetarian=true|false
     """
-    menu_data = [
-        {
-            "id": 1,
-            "name": "Margherita Pizza",
-            "description": "Classic pizza with tomato sauce, fresh mozzarella, and basil leaves",
-            "price": "12.99",
-            "category": "Main Course",
-            "is_vegetarian": True,
-            "is_available": True
-        },
-        {
-            "id": 2,
-            "name": "Spaghetti Carbonara",
-            "description": "Traditional Italian pasta with eggs, cheese, pancetta, and black pepper",
-            "price": "14.50",
-            "category": "Main Course",
-            "is_vegetarian": False,
-            "is_available": True
-        },
-        {
-            "id": 3,
-            "name": "Caesar Salad",
-            "description": "Crisp romaine lettuce with parmesan cheese, croutons, and Caesar dressing",
-            "price": "8.99",
-            "category": "Appetizer",
-            "is_vegetarian": True,
-            "is_available": True
-        },
-        {
-            "id": 4,
-            "name": "Grilled Salmon",
-            "description": "Fresh salmon fillet grilled to perfection with lemon butter sauce",
-            "price": "18.99",
-            "category": "Main Course",
-            "is_vegetarian": False,
-            "is_available": True
-        },
-        {
-            "id": 5,
-            "name": "Tiramisu",
-            "description": "Classic Italian dessert with coffee-soaked ladyfingers and mascarpone cream",
-            "price": "6.99",
-            "category": "Dessert",
-            "is_vegetarian": True,
-            "is_available": True
-        }
-    ]
-    
-    # Apply filters if provided
-    category = request.GET.get('category')
-    vegetarian = request.GET.get('vegetarian')
-    
-    filtered_data = menu_data
-    
+    qs = MenuItem.objects.filter(is_available=True)
+    category = request.GET.get("category")
+    vegetarian = request.GET.get("vegetarian")
     if category:
-        filtered_data = [item for item in filtered_data if item['category'].lower() == category.lower()]
-    
-    if vegetarian:
-        is_veg = vegetarian.lower() == 'true'
-        filtered_data = [item for item in filtered_data if item['is_vegetarian'] == is_veg]
-    
-    # Serialize the data
-    serializer = MenuItemSerializer(filtered_data, many=True)
+        qs = qs.filter(category__iexact=category)
+    if vegetarian is not None:
+        veg_flag = vegetarian.lower() in ("1", "true", "yes")
+        qs = qs.filter(is_vegetarian=veg_flag)
+
+    serializer = MenuItemSerializer(qs, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-# Menu items
-def menu_view(request):
-    # Get all available menu items
-    menu_items = MenuItem.objects.filter(is_available=True)
-    
-    # Group items by category
-    menu_by_category = {}
-    for item in menu_items:
-        if item.category not in menu_by_category:
-            menu_by_category[item.category] = []
-        menu_by_category[item.category].append(item)
-    
-    context = {
-        'menu_by_category': menu_by_category,
-    }
-    return render(request, 'menu.html', context)
-
-# Location view
-def home_view(request):
-    # Try to get location from database or settings
-    try:
-        location = RestaurantLocation.objects.first()
-        if not location:
-            # Create default location from settings
-            location = RestaurantLocation.objects.create(
-                address=getattr(settings, 'RESTAURANT_ADDRESS', '123 Gourmet Street, Foodville, FC 12345'),
-                phone=getattr(settings, 'RESTAURANT_PHONE', '+1 (555) 123-4567'),
-                email=getattr(settings, 'RESTAURANT_EMAIL', 'info@restaurant.com'),
-                google_maps_embed_url=getattr(settings, 'RESTAURANT_GOOGLE_MAPS_EMBED_URL', '')
-            )
-    except:
-        # Fallback to settings
-        location = None
-    
-    context = {
-        'restaurant_address': location.address if location else getattr(settings, 'RESTAURANT_ADDRESS', ''),
-        'restaurant_phone': location.phone if location else getattr(settings, 'RESTAURANT_PHONE', ''),
-        'restaurant_email': location.email if location else getattr(settings, 'RESTAURANT_EMAIL', ''),
-        'google_maps_embed_url': location.google_maps_embed_url if location else getattr(settings, 'RESTAURANT_GOOGLE_MAPS_EMBED_URL', ''),
-    }
-    return render(request, 'home.html', context)
-
-# Contact form submission
-def home_view(request):
-    # Handle form submission
-    if request.method == 'POST' and 'contact_submit' in request.POST:
-        form = ContactForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Thank you for your message! We will get back to you soon.')
-            return redirect('home')
-        else:
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        form = ContactForm()
-    
-    # Your existing context data
-    context = {
-        'form': form,
-        # ... your existing context variables
-    }
-    return render(request, 'home.html', context)
-
-# about us
-def about_view(request):
-    # Get active about content or create default if none exists
-    try:
-        about_content = AboutContent.objects.filter(is_active=True).first()
-        if not about_content:
-            about_content = AboutContent.objects.create(
-                title="About Gourmet Delight",
-                mission="To provide exceptional dining experiences through authentic cuisine and warm hospitality.",
-                history="Founded in 2010, Gourmet Delight has been serving the community with passion and dedication for over a decade."
-            )
-    except:
-        # Fallback content if there's any error
-        about_content = None
-    
-    context = {
-        'about': about_content,
-    }
-    return render(request, 'about.html', context)

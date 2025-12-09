@@ -1,0 +1,123 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}{{ restaurant.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'home/home.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<header class="restaurant-header" role="banner">
+    {% if restaurant.logo %}
+    <img src="{{ restaurant.logo.url }}" alt="{{ restaurant.name }} logo" width="120" class="restaurant-logo"> {% endif %}
+
+    <h1 class="restaurant-name">{{ restaurant.name }}</h1>
+
+    {% if restaurant_config.tagline %}
+    <p class="restaurant-tagline">{{ restaurant_config.tagline }}</p>
+    {% endif %} {% if restaurant.description %}
+    <p class="restaurant-description">{{ restaurant.description }}</p>
+    {% endif %}
+    <div class="hours" aria-live="polite">
+        {{ opening_hours.weekdays }}<br>
+        {{ opening_hours.weekend }}
+    </div>
+</header>
+
+<section class="location-section" aria-labelledby="visit-heading">
+    <div class="container">
+        <h2 id="visit-heading">Visit Us</h2>
+
+        <div class="location-content">
+            <div class="address-info">
+                <h3>Location</h3>
+                {% if restaurant_location %}
+                    <p>{{ restaurant_location.address|default:"Address not available." }}</p>
+                    <div class="contact-details" aria-label="Contact details">
+                        {% if restaurant_location.phone %}
+                        <p><strong>Phone:</strong> {{ restaurant_location.phone }}</p>
+                        {% endif %}
+                        {% if restaurant_location.email %}
+                        <p><strong>Email:</strong> <a href="mailto:{{ restaurant_location.email }}">{{ restaurant_location.email }}</a></p>
+                        {% endif %}
+                    </div>
+                    {% if restaurant_location.hours_of_operation %}
+                    <div class="hours-of-operation" aria-labelledby="hours-heading">
+                        <h4 id="hours-heading">Hours</h4>
+                        <p>{{ restaurant_location.hours_of_operation|linebreaks }}</p>
+                    </div>
+                    {% else %}
+                    <div class="hours-of-operation" aria-labelledby="hours-heading">
+                        <h4 id="hours-heading">Hours</h4>
+                        <p>{{ opening_hours.weekdays }}</p>
+                        <p>{{ opening_hours.weekend }}</p>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <p>Address not available.</p>
+                    <div class="contact-details" aria-label="Contact details">
+                        {% if restaurant.phone %}
+                        <p><strong>Phone:</strong> {{ restaurant.phone }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="hours-of-operation" aria-labelledby="hours-heading">
+                        <h4 id="hours-heading">Hours</h4>
+                        <p>{{ opening_hours.weekdays }}</p>
+                        <p>{{ opening_hours.weekend }}</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if restaurant_location and restaurant_location.google_maps_embed_url %}
+            <div class="map-container" role="region" aria-label="Map">
+                <iframe src="{{ restaurant_location.google_maps_embed_url }}" width="100%" height="300" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            {% else %}
+            <div>
+                <p class="muted">Map not available.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="contact-section" aria-labelledby="contact-heading">
+    <div class="container">
+        <h2 id="contact-heading">Contact Us</h2>
+        <p>Have questions or feedback? We'd love to hear from you.</p>
+
+        {% if messages %}
+        <div class="messages" role="status" aria-live="polite">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" class="contact-form" novalidate>
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}">Name *</label> {{ form.name }} {% if form.name.errors %}
+                <div class="error">{{ form.name.errors.as_text|linebreaksbr }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">Email *</label> {{ form.email }} {% if form.email.errors %}
+                <div class="error">{{ form.email.errors.as_text|linebreaksbr }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.message.id_for_label }}">Message</label> {{ form.message }} {% if form.message.errors %}
+                <div class="error">{{ form.message.errors.as_text|linebreaksbr }}</div>{% endif %}
+            </div>
+
+            <button type="submit" name="contact_submit" class="submit-btn">Send Message</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'home/about.css' %}">
+{% endblock %}
+
+{% block title %}About {{ restaurant.name }}{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="about-header">
+        <h1>{{ about.title|default:"About " }}{{ restaurant.name }}</h1>
+    </div>
+
+    <div class="about-content">
+        <div class="about-text">
+            <h2>Our Story</h2>
+            <p>{{ about.history|default:restaurant.about_us|default:"We are a family-owned restaurant dedicated to serving authentic cuisine with fresh, locally-sourced ingredients." }}</p>
+
+            <h2>Our Mission</h2>
+            <p>{{ about.mission|default:"To provide exceptional dining experiences through quality food and warm hospitality." }}</p>
+        </div>
+
+        {% if about.image %}
+        <img src="{{ about.image.url }}" alt="Our Restaurant" class="about-image">
+        {% elif restaurant.image %}
+        <img src="{{ restaurant.image.url }}" alt="Our Restaurant" class="about-image">
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

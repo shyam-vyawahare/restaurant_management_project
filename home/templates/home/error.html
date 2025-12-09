@@ -1,0 +1,18 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Error {{ status_code }} - {{ restaurant.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'home/error.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <h1>Oops! Something went wrong</h1>
+    <p>{{ error_message|default:"An unexpected error occurred." }}</p>
+    <p><small>Error code: {{ status_code|default:500 }}</small></p>
+    <a href="{% url 'home' %}" class="home-button">Return to Homepage</a>
+</div>
+{% endblock %}
+

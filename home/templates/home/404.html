@@ -1,0 +1,19 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Page Not Found - {{ restaurant.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'home/error.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <h1>404</h1>
+    <h2>Oops! Page Not Found</h2>
+    <p>We can't seem to find the page you're looking for.</p>
+    <p>Maybe it was moved or never existed?</p>
+    <a href="{% url 'home' %}" class="home-button">Return to Homepage</a>
+</div>
+{% endblock %}
+

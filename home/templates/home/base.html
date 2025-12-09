@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ restaurant.name }}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'home/base.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="site-nav" role="navigation" aria-label="Main">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'menu' %}">Menu</a>
+        <a href="{% url 'about' %}">About</a>
+        <a href="{% url 'contact' %}">Contact</a>
+    </nav>
+
+    <div class="content-wrapper">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Opening Hours</h4>
+                <p>{{ opening_hours.weekdays }}</p>
+                <p>{{ opening_hours.weekend }}</p>
+            </div>
+            <p class="copyright">
+                &copy; {{ current_year }} {{ restaurant.name }}. All rights reserved.
+            </p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="{% url 'contact' %}">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

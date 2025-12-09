@@ -51,7 +51,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(source="orderitem_set", many=True, read_only=True)
+    items = OrderItemSerializer(source="items", many=True, read_only=True)
 
     class Meta:
         model = Order
